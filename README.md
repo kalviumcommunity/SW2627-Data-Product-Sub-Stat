@@ -47,4 +47,95 @@ Retention Analysis
 Content Insights
        ↓
 Acquisition Decisions
+```
 
+---
+
+## 3. Project Structure
+
+```text
+SW2627-Data-Product-Sub-Stat/
+├── data/
+│   ├── raw/            # Original, immutable raw datasets
+│   └── processed/      # Cleaned and transformed data ready for analysis
+├── notebooks/          # Jupyter notebooks for exploratory data analysis (EDA)
+├── scripts/            # Modular Python scripts for data processing and analysis
+├── output/             # Generated charts, figures, metrics, and export files
+├── requirements.txt    # Essential Python dependencies
+├── .gitignore          # Files and directories ignored by Git
+└── README.md           # Project documentation and setup guide
+```
+
+---
+
+## 4. Development Environment Setup
+
+Follow these steps to set up the local development environment on your machine.
+
+### Prerequisites
+
+- Python 3.10+ installed
+- Git installed
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/kalviumcommunity/SW2627-Data-Product-Sub-Stat.git
+cd SW2627-Data-Product-Sub-Stat
+```
+
+### 2. Create a Virtual Environment
+
+Create an isolated Python virtual environment named `venv`:
+
+- **Windows (PowerShell / Command Prompt):**
+  ```powershell
+  python -m venv venv
+  ```
+- **macOS / Linux:**
+  ```bash
+  python3 -m venv venv
+  ```
+
+### 3. Activate the Virtual Environment
+
+- **Windows (PowerShell):**
+  ```powershell
+  .\venv\Scripts\Activate.ps1
+  ```
+  *(If you encounter a PowerShell execution policy restriction, run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` first)*
+
+- **Windows (Command Prompt):**
+  ```cmd
+  venv\Scripts\activate.bat
+  ```
+
+- **macOS / Linux:**
+  ```bash
+  source venv/bin/activate
+  ```
+
+Once activated, your terminal prompt will display `(venv)`.
+
+### 4. Install Dependencies
+
+Upgrade `pip` and install all required project packages:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 5. Verify Setup
+
+Verify that the core libraries import properly:
+
+```bash
+python -c "import pandas, numpy, matplotlib, seaborn, sklearn, streamlit; print('Environment setup successful!')"
+```
+
+To deactivate the virtual environment when you are finished:
+
+```bash
+deactivate
+```
