@@ -1,0 +1,4 @@
+segment,customer_count,churn_rate,total_revenue,revenue_contribution,action
+Enterprise,4,25.0%,$6600,65.3%,HIGH PRIORITY: Churn above 10%. Investigate pain points.
+Medium,4,50.0%,$2750,27.2%,HIGH PRIORITY: Churn above 10%. Investigate pain points.
+Small,4,50.0%,$760,7.5%,HIGH PRIORITY: Churn above 10%. Investigate pain points.
