@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-08-19T15:10:11.120602",
+  "filepath": "/Users/AADEEP/Documents/code /S5.1/SW2627-Data-Product-Sub-Stat/data/raw/sample.csv",
+  "validations": {
+    "file_exists": "File exists and has content",
+    "format": "Format valid: csv",
+    "schema": "Schema valid: 4 columns present",
+    "encoding": "Detected: utf-8 (confidence: 100.0%)"
+  },
+  "validation_status": {
+    "file_exists": true,
+    "format": true,
+    "schema": true,
+    "encoding": true
+  },
+  "statistics": {
+    "rows": 3,
+    "columns": 4,
+    "file_size_mb": 0.00015,
+    "bytes": 156
+  }
+}
