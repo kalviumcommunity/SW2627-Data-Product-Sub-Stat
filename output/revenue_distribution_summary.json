@@ -1,0 +1,41 @@
+{
+  "skewness": -0.24633987452287406,
+  "kurtosis": -1.5000000000000004,
+  "describe": {
+    "count": 3.0,
+    "mean": 141.91666666666666,
+    "std": 62.81636596726472,
+    "min": 75.25,
+    "25%": 112.875,
+    "50%": 150.5,
+    "75%": 175.25,
+    "max": 200.0
+  },
+  "percentiles": {
+    "0.25": 112.875,
+    "0.5": 150.5,
+    "0.75": 175.25,
+    "0.9": 190.1,
+    "0.95": 195.04999999999998,
+    "0.99": 199.01
+  },
+  "high_value": {
+    "count": 1,
+    "mean": 200.0,
+    "median": 200.0
+  },
+  "low_value": {
+    "count": 1,
+    "mean": 75.25,
+    "median": 75.25
+  },
+  "interpretation": {
+    "shape": "Moderate",
+    "tails": "Normal",
+    "business_action": "Uniform strategy"
+  },
+  "plots": {
+    "distribution_plot": "/Users/AADEEP/Documents/code /S5.1/SW2627-Data-Product-Sub-Stat/output/revenue_distribution.png",
+    "segment_plot": "/Users/AADEEP/Documents/code /S5.1/SW2627-Data-Product-Sub-Stat/output/revenue_segments.png"
+  }
+}
