@@ -1,8 +1,30 @@
+# Python Virtual Environment
 venv/
-__pycache__/
-*.pyc
-.ipynb_checkpoints/
+.venv/
+env/
+
+# Environment Variables & Secrets
 .env
+.env.local
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter Notebook Checkpoints & Cache
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Generated Project Outputs (ignoring output files while keeping the directory tracked)
+output/*
+!output/.gitkeep
+
+# Operating System Files
 .DS_Store
+Thumbs.db
+
+# Database Files
 *.sqlite
 *.db
