@@ -51,62 +51,91 @@ Acquisition Decisions
 
 ---
 
-## 3. Team Git & GitHub Workflow
+## 3. Project Structure
 
-To ensure smooth collaboration, quality control, and clean version history, our team follows a structured Git workflow.
+```text
+SW2627-Data-Product-Sub-Stat/
+├── data/
+│   ├── raw/            # Original, immutable raw datasets
+│   └── processed/      # Cleaned and transformed data ready for analysis
+├── notebooks/          # Jupyter notebooks for exploratory data analysis (EDA)
+├── scripts/            # Modular Python scripts for data processing and analysis
+├── output/             # Generated charts, figures, metrics, and export files
+├── requirements.txt    # Essential Python dependencies
+├── .gitignore          # Files and directories ignored by Git
+└── README.md           # Project documentation and setup guide
+```
 
-### 1. Branch Naming Conventions
+---
 
-All new work should be developed on a dedicated branch created from `main`. Use descriptive branch names with appropriate prefixes:
+## 4. Development Environment Setup
 
-| Prefix | Description | Example |
-| :--- | :--- | :--- |
-| `feat/` | New features, analysis modules, or pipelines | `feat/data-validation`, `feat/engagement-metrics` |
-| `fix/` | Bug fixes and corrections | `fix/correct-data-processing`, `fix/missing-values` |
-| `docs/` | Documentation additions or updates | `docs/update-readme`, `docs/team-workflow` |
-| `setup/` | Environment, dependencies, or repository setup | `setup/dev-environment`, `setup/github-workflow` |
-| `refactor/` | Code refactoring without changing functionality | `refactor/clean-pipeline` |
+Follow these steps to set up the local development environment on your machine.
 
-### 2. Feature Branch Workflow
+### Prerequisites
 
-Never commit directly to the `main` branch. Follow these steps for every task:
+- Python 3.10+ installed
+- Git installed
 
-1. **Pull Latest Changes:** Always ensure your local `main` is up to date before starting:
-   ```bash
-   git checkout main
-   git pull origin main
-   ```
-2. **Create a Feature Branch:**
-   ```bash
-   git checkout -b feat/add-data-validation
-   ```
-3. **Work & Test Locally:** Make your changes and test them in your virtual environment.
-4. **Stage and Commit Changes:** Make small, logical commits following conventional commit rules.
+### 1. Clone the Repository
 
-### 3. Conventional Commit Messages
+```bash
+git clone https://github.com/kalviumcommunity/SW2627-Data-Product-Sub-Stat.git
+cd SW2627-Data-Product-Sub-Stat
+```
 
-We write clear, standardized commit messages in the format: `<type>: <short summary>`
+### 2. Create a Virtual Environment
 
-Common types:
-- `feat:` A new feature or functionality (e.g., `feat: add data validation`)
-- `fix:` A bug fix or correction (e.g., `fix: correct data processing`)
-- `docs:` Documentation changes only (e.g., `docs: update README`)
-- `refactor:` Code refactoring without fixing a bug or adding a feature (e.g., `refactor: simplify metric calculation`)
-- `chore:` Maintenance tasks or dependency updates (e.g., `chore: update dependencies`)
+Create an isolated Python virtual environment named `venv`:
 
-### 4. Pull Request (PR) & Code Review Workflow
+- **Windows (PowerShell / Command Prompt):**
+  ```powershell
+  python -m venv venv
+  ```
+- **macOS / Linux:**
+  ```bash
+  python3 -m venv venv
+  ```
 
-1. **Push Feature Branch to GitHub:**
-   ```bash
-   git push -u origin feat/add-data-validation
-   ```
-2. **Open a Pull Request:**
-   - Go to GitHub and open a Pull Request targeting `main`.
-   - Provide a clear PR title and descriptive summary of changes made.
-3. **Link Associated Issues:**
-   - Connect the PR to its corresponding issue using keywords (e.g., `Closes #12` or `Resolves #45`).
-4. **Peer Code Review:**
-   - At least one teammate must review and approve the PR before merging.
-   - Address any reviewer feedback or suggestions with additional commits on the branch.
-5. **Merge to Main:**
-   - Once approved, merge the PR into `main` and delete the feature branch.
+### 3. Activate the Virtual Environment
+
+- **Windows (PowerShell):**
+  ```powershell
+  .\venv\Scripts\Activate.ps1
+  ```
+  *(If you encounter a PowerShell execution policy restriction, run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` first)*
+
+- **Windows (Command Prompt):**
+  ```cmd
+  venv\Scripts\activate.bat
+  ```
+
+- **macOS / Linux:**
+  ```bash
+  source venv/bin/activate
+  ```
+
+Once activated, your terminal prompt will display `(venv)`.
+
+### 4. Install Dependencies
+
+Upgrade `pip` and install all required project packages:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 5. Verify Setup
+
+Verify that the core libraries import properly:
+
+```bash
+python -c "import pandas, numpy, matplotlib, seaborn, sklearn, streamlit; print('Environment setup successful!')"
+```
+
+To deactivate the virtual environment when you are finished:
+
+```bash
+deactivate
+```
