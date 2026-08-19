@@ -1,0 +1,13 @@
+customer_id,customer_type,product,revenue,support_tickets,churn
+1,Enterprise,Analytics,1200,2,0
+2,Enterprise,Analytics,1500,4,0
+3,Enterprise,Security,1800,3,0
+4,Enterprise,Security,2100,5,1
+5,Small,Analytics,180,1,0
+6,Small,Analytics,220,2,0
+7,Small,Security,160,4,1
+8,Small,Security,200,5,1
+9,Medium,Analytics,600,2,0
+10,Medium,Analytics,720,3,0
+11,Medium,Security,680,6,1
+12,Medium,Security,750,7,1

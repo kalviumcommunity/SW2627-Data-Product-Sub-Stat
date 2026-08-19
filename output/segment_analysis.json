@@ -1,0 +1,103 @@
+{
+  "segment_metrics": [
+    {
+      "customer_type": "Enterprise",
+      "churn_rate": 0.25,
+      "total_revenue": 6600,
+      "customer_count": 4,
+      "avg_support_tickets": 3.5,
+      "churn_rank": 2.0,
+      "revenue_contribution": 65.2819
+    },
+    {
+      "customer_type": "Medium",
+      "churn_rate": 0.5,
+      "total_revenue": 2750,
+      "customer_count": 4,
+      "avg_support_tickets": 4.5,
+      "churn_rank": 1.0,
+      "revenue_contribution": 27.2008
+    },
+    {
+      "customer_type": "Small",
+      "churn_rate": 0.5,
+      "total_revenue": 760,
+      "customer_count": 4,
+      "avg_support_tickets": 3.0,
+      "churn_rank": 1.0,
+      "revenue_contribution": 7.5173
+    }
+  ],
+  "worst_first": [
+    {
+      "customer_type": "Medium",
+      "churn_rate": 0.5,
+      "total_revenue": 2750,
+      "customer_count": 4,
+      "avg_support_tickets": 4.5,
+      "churn_rank": 1.0,
+      "revenue_contribution": 27.2008
+    },
+    {
+      "customer_type": "Small",
+      "churn_rate": 0.5,
+      "total_revenue": 760,
+      "customer_count": 4,
+      "avg_support_tickets": 3.0,
+      "churn_rank": 1.0,
+      "revenue_contribution": 7.5173
+    },
+    {
+      "customer_type": "Enterprise",
+      "churn_rate": 0.25,
+      "total_revenue": 6600,
+      "customer_count": 4,
+      "avg_support_tickets": 3.5,
+      "churn_rank": 2.0,
+      "revenue_contribution": 65.2819
+    }
+  ],
+  "product_revenue_pivot": [
+    {
+      "customer_type": "Enterprise",
+      "Analytics": 2700,
+      "Security": 3900
+    },
+    {
+      "customer_type": "Medium",
+      "Analytics": 1320,
+      "Security": 1430
+    },
+    {
+      "customer_type": "Small",
+      "Analytics": 400,
+      "Security": 360
+    }
+  ],
+  "insights": [
+    {
+      "segment": "Enterprise",
+      "customer_count": 4,
+      "churn_rate": "25.0%",
+      "total_revenue": "$6600",
+      "revenue_contribution": "65.3%",
+      "action": "HIGH PRIORITY: Churn above 10%. Investigate pain points."
+    },
+    {
+      "segment": "Medium",
+      "customer_count": 4,
+      "churn_rate": "50.0%",
+      "total_revenue": "$2750",
+      "revenue_contribution": "27.2%",
+      "action": "HIGH PRIORITY: Churn above 10%. Investigate pain points."
+    },
+    {
+      "segment": "Small",
+      "customer_count": 4,
+      "churn_rate": "50.0%",
+      "total_revenue": "$760",
+      "revenue_contribution": "7.5%",
+      "action": "HIGH PRIORITY: Churn above 10%. Investigate pain points."
+    }
+  ]
+}
