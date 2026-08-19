@@ -1,0 +1,3 @@
+✓ Data successfully processed
+✓ Rows processed: 3
+✓ Output saved to output/processed.csv
