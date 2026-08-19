@@ -1,0 +1,94 @@
+{
+  "pearson": {
+    "engagement": {
+      "engagement": 1.0,
+      "transactions_per_month": 0.9988,
+      "support_tickets": 0.9979,
+      "churn": 0.8682
+    },
+    "transactions_per_month": {
+      "engagement": 0.9988,
+      "transactions_per_month": 1.0,
+      "support_tickets": 0.9961,
+      "churn": 0.869
+    },
+    "support_tickets": {
+      "engagement": 0.9979,
+      "transactions_per_month": 0.9961,
+      "support_tickets": 1.0,
+      "churn": 0.879
+    },
+    "churn": {
+      "engagement": 0.8682,
+      "transactions_per_month": 0.869,
+      "support_tickets": 0.879,
+      "churn": 1.0
+    }
+  },
+  "spearman": {
+    "engagement": {
+      "engagement": 1.0,
+      "transactions_per_month": 1.0,
+      "support_tickets": 0.9983,
+      "churn": 0.869
+    },
+    "transactions_per_month": {
+      "engagement": 1.0,
+      "transactions_per_month": 1.0,
+      "support_tickets": 0.9983,
+      "churn": 0.869
+    },
+    "support_tickets": {
+      "engagement": 0.9983,
+      "transactions_per_month": 0.9983,
+      "support_tickets": 1.0,
+      "churn": 0.8706
+    },
+    "churn": {
+      "engagement": 0.869,
+      "transactions_per_month": 0.869,
+      "support_tickets": 0.8706,
+      "churn": 1.0
+    }
+  },
+  "comparison_to_churn": {
+    "pearson": {
+      "engagement": 0.8682,
+      "transactions_per_month": 0.869,
+      "support_tickets": 0.879,
+      "churn": 1.0
+    },
+    "spearman": {
+      "engagement": 0.869,
+      "transactions_per_month": 0.869,
+      "support_tickets": 0.8706,
+      "churn": 1.0
+    }
+  },
+  "strong_pairs": {
+    "('engagement', 'transactions_per_month')": 0.9988430379313897,
+    "('engagement', 'support_tickets')": 0.9979050218737691,
+    "('support_tickets', 'transactions_per_month')": 0.9961126341638854,
+    "('churn', 'support_tickets')": 0.8790490729915326,
+    "('churn', 'transactions_per_month')": 0.8690481892534816,
+    "('churn', 'engagement')": 0.8682043285676155
+  },
+  "selected_features": [
+    "transactions_per_month",
+    "support_tickets",
+    "churn"
+  ],
+  "business_interpretation": {
+    "support_tickets <-> churn": {
+      "correlation": 0.8790490729915326,
+      "possible_directions": [
+        "support_tickets -> churn (customer gives up after contacting support)",
+        "churn -> support_tickets (unhappy customers contact support before leaving)",
+        "customer_pain -> both (underlying issue causes both)"
+      ],
+      "data_indicates": "Correlation alone cannot establish causation; customer pain may confound both measures.",
+      "action": "Focus on reducing customer pain and improving support outcomes, not blocking tickets."
+    }
+  },
+  "heatmap": "/Users/AADEEP/Documents/code /S5.1/SW2627-Data-Product-Sub-Stat/output/correlation_heatmap.png"
+}
