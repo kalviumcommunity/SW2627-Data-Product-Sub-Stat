@@ -139,3 +139,41 @@ To deactivate the virtual environment when you are finished:
 ```bash
 deactivate
 ```
+
+---
+
+## 5. Module 3 — Data Dictionary & Business Context Mapping
+
+### Objective
+Establish a formal, comprehensive data dictionary mapping all dataset fields to their technical specifications, data types, business definitions, constraints, and business domain objectives for the streaming analytics platform.
+
+### What Was Implemented
+- **Business Domain Segmentation**:
+  1. **User & Subscription Domain**: Account identifiers, demographics, subscription plans, pricing, and billing preferences (`viewer_id`, `user_name`, `country`, `signup_date`, `subscription_plan`, `monthly_fee`, `auto_renew`).
+  2. **Viewing Consumption Domain**: Content metadata, timestamps, session duration, and asset runtimes (`content_id`, `content_title`, `genre`, `watch_date`, `watch_duration_minutes`, `total_content_duration_minutes`).
+  3. **Engagement Dynamics Domain**: Granular engagement metrics and behavioral indicators (`completion_rate`, `pause_frequency`, `episodes_watched`, `viewing_frequency_per_week`, `binge_watching_flag`).
+  4. **Retention & Churn Domain**: Churn outcome indicators, risk scoring, and customer lifetime value (`subscription_status`, `churn`, `retention_risk_tier`, `customer_lifetime_value`).
+- **Comprehensive Documentation ([docs/data_dictionary.md](docs/data_dictionary.md))**: Full reference detailing data types, constraints, descriptions, and business purpose.
+- **Data Dictionary Engine (`scripts/data_dictionary.py`)**: Provides schema lookup, domain filtering (`get_fields_by_domain`), DataFrame schema validation (`validate_dataframe_schema`), and JSON export (`export_data_dictionary_json`).
+- **Automated Test Suite (`scripts/test_data_dictionary.py`)**: 4 unit tests validating dictionary completeness, domain partitioning, schema compliance, and JSON export.
+
+### Files Created & Modified
+- `docs/data_dictionary.md`: Complete domain reference guide and data dictionary tables.
+- `scripts/data_dictionary.py`: Programmatic schema definitions and validation logic.
+- `scripts/test_data_dictionary.py`: Automated test suite for data dictionary rules.
+- `README.md`: Module documentation.
+
+### How to Run & Use
+
+```bash
+# Inspect and export the data dictionary to JSON:
+python scripts/data_dictionary.py
+
+# Run the automated unit tests:
+python -m unittest scripts/test_data_dictionary.py
+```
+
+### Validation & Testing Performed
+- **Automated Tests:** All 4 unit tests passed (`OK`), verifying field definitions, domain partitioning, DataFrame schema matching, and JSON export.
+- **Export Verification:** Successfully generated schema export at `output/data_dictionary.json`.
+
