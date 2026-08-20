@@ -139,3 +139,36 @@ To deactivate the virtual environment when you are finished:
 ```bash
 deactivate
 ```
+
+---
+
+## 5. Module 1 — CSV & JSON Data Ingestion
+
+### Objective
+Provide robust, reliable ingestion for structured CSV and nested JSON datasets into Pandas DataFrames, handling varying delimiters, character encodings, nested object flattening, and generating audit reports.
+
+### What Was Implemented
+- **Explicit CSV Ingestion (`ingest_csv`)**: Loads CSV files with explicit delimiter and encoding specifications, automatically cycling through fallback encodings (`utf-8`, `latin1`, `cp1252`, `iso-8859-1`) upon decode failure.
+- **Nested JSON Ingestion (`ingest_json`)**: Ingests JSON datasets with support for flattening complex nested key-value pairs using `pandas.json_normalize`.
+- **Ingestion Audit Reporting (`generate_ingestion_report`)**: Generates structured metadata reports containing source path, file dimensions, column names, data types, null counts, and sample records.
+- **Automated Test Suite (`scripts/test_data_ingestion.py`)**: Validates standard/custom delimiters, Latin-1 encoding fallback, JSON flattening, and error scenarios.
+
+### Files Created & Modified
+- `scripts/data_ingestion.py`: Core ingestion functions and demo runner.
+- `scripts/test_data_ingestion.py`: Unit and integration test suite.
+- `data/raw/viewers_nested.json`: Sample nested dataset representing viewer activity, plans, and metrics.
+- `README.md`: Module documentation.
+
+### How to Run & Use
+
+```bash
+# Run the ingestion pipeline demonstration:
+python scripts/data_ingestion.py
+
+# Run the automated unit tests:
+python -m unittest scripts/test_data_ingestion.py
+```
+
+### Validation & Testing Performed
+- **Automated Tests:** All 7 unit tests passed (`OK`), verifying CSV parsing, delimiter handling, character encoding fallback from UTF-8 to Latin-1, nested JSON normalization, and error handling for missing/empty files.
+- **Pipeline Execution:** Successfully ingested `data/raw/sample.csv` and `data/raw/viewers_nested.json`, outputting structured audit reports to `output/ingestion_report_csv.json` and `output/ingestion_report_json.json`.

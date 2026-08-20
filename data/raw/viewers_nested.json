@@ -1,0 +1,86 @@
+[
+  {
+    "viewer_id": "V1001",
+    "profile": {
+      "name": "Sarah Connor",
+      "country": "US",
+      "signup_date": "2025-01-10"
+    },
+    "subscription": {
+      "plan": "Premium",
+      "monthly_fee": 15.99,
+      "status": "Active",
+      "auto_renew": true
+    },
+    "engagement": {
+      "watch_duration_hours": 42.5,
+      "pause_frequency": 3,
+      "episode_completion_rate": 0.88,
+      "episodes_watched": 28,
+      "viewing_frequency_per_week": 5
+    }
+  },
+  {
+    "viewer_id": "V1002",
+    "profile": {
+      "name": "John Doe",
+      "country": "CA",
+      "signup_date": "2025-01-14"
+    },
+    "subscription": {
+      "plan": "Standard",
+      "monthly_fee": 11.99,
+      "status": "Active",
+      "auto_renew": true
+    },
+    "engagement": {
+      "watch_duration_hours": 18.2,
+      "pause_frequency": 12,
+      "episode_completion_rate": 0.55,
+      "episodes_watched": 10,
+      "viewing_frequency_per_week": 2
+    }
+  },
+  {
+    "viewer_id": "V1003",
+    "profile": {
+      "name": "Elena Rostova",
+      "country": "UK",
+      "signup_date": "2025-01-22"
+    },
+    "subscription": {
+      "plan": "Basic",
+      "monthly_fee": 8.99,
+      "status": "Cancelled",
+      "auto_renew": false
+    },
+    "engagement": {
+      "watch_duration_hours": 5.0,
+      "pause_frequency": 18,
+      "episode_completion_rate": 0.30,
+      "episodes_watched": 3,
+      "viewing_frequency_per_week": 1
+    }
+  },
+  {
+    "viewer_id": "V1004",
+    "profile": {
+      "name": "Marcus Vance",
+      "country": "AU",
+      "signup_date": "2025-02-01"
+    },
+    "subscription": {
+      "plan": "Premium",
+      "monthly_fee": 15.99,
+      "status": "Active",
+      "auto_renew": true
+    },
+    "engagement": {
+      "watch_duration_hours": 64.0,
+      "pause_frequency": 2,
+      "episode_completion_rate": 0.95,
+      "episodes_watched": 45,
+      "viewing_frequency_per_week": 6
+    }
+  }
+]
