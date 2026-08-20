@@ -139,3 +139,41 @@ To deactivate the virtual environment when you are finished:
 ```bash
 deactivate
 ```
+
+---
+
+## 5. Module 4 — Missing Value Detection & Imputation
+
+### Objective
+Implement automated missing-value detection and defensible, multi-strategy imputation routines (dropping invalid identifiers, time-series forward fill, median imputation, mode imputation) accompanied by rigorous before/after audit tracking.
+
+### What Was Implemented
+- **Missing Value Profiling (`detect_missing_values`)**: Measures total missing cells, overall missingness percentage, and per-column null statistics.
+- **Defensible Treatment Strategy Selection (`handle_missing_values`)**:
+  - **Critical Identifiers (Row Dropping)**: Removes records missing primary keys (`viewer_id`) to prevent artificial identity collisions.
+  - **Time-Series Sequential Imputation (Forward Fill)**: Propagates prior observations across sorted date fields (`viewing_date`) assuming state continuity.
+  - **Numerical Imputation (Median)**: Imputes continuous/skewed features (`monthly_fee`, `watch_duration_minutes`, `completion_rate`) using the column median to resist outlier distortion.
+  - **Categorical Imputation (Mode)**: Imputes categorical variables (`country`, `subscription_plan`, `user_name`) with the most frequent valid category.
+- **Before vs. After Audit Reporting (`generate_imputation_report`)**: Tracks row counts, missingness reductions, completeness percentages, and logs the explicit rationale for each feature treatment.
+- **Automated Test Suite (`scripts/test_missing_value_handling.py`)**: 6 unit tests validating detection, ID dropping, median/mode/ffill logic, and report generation.
+
+### Files Created & Modified
+- `scripts/missing_value_handling.py`: Core imputation engine and workflow runner.
+- `scripts/test_missing_value_handling.py`: Comprehensive test suite.
+- `data/raw/raw_with_missing.csv`: Sample raw dataset with representative null patterns.
+- `README.md`: Module documentation.
+
+### How to Run & Use
+
+```bash
+# Run the missing value detection and imputation workflow:
+python scripts/missing_value_handling.py
+
+# Run the automated unit tests:
+python -m unittest scripts/test_missing_value_handling.py
+```
+
+### Validation & Testing Performed
+- **Automated Tests:** All 6 unit tests passed (`OK`), validating missingness detection, row dropping on null IDs, median replacement accuracy, mode replacement accuracy, time-series continuity, and JSON audit logging.
+- **Pipeline Execution:** Successfully cleaned `data/raw/raw_with_missing.csv` (10 rows, 11.1% missing cells) into `data/processed/cleaned_imputed.csv` (8 rows, 100.0% completeness), producing `output/missing_value_report.json`.
+
