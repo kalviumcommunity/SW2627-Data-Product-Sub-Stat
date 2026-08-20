@@ -139,3 +139,39 @@ To deactivate the virtual environment when you are finished:
 ```bash
 deactivate
 ```
+
+---
+
+## 5. Module 2 — Dataset Profiling & Quality Assessment
+
+### Objective
+Perform automated dataset profiling and evaluate core data quality dimensions (Completeness, Uniqueness, Distribution, Validity, and Consistency) to ensure data reliability before downstream analysis and modeling.
+
+### What Was Implemented
+- **Shape & Memory Profiling (`profile_shape_and_memory`)**: Measures total rows, columns, memory usage (in bytes, KB, MB), and column names.
+- **Completeness Analysis (`profile_missing_values`)**: Detects missing cells, null counts, null percentages per column, and computes overall dataset completeness.
+- **Uniqueness & Key Checks (`profile_duplicates`)**: Calculates exact duplicate rows and verifies primary key uniqueness.
+- **Numerical Distribution Profiling (`profile_numerical_distributions`)**: Computes statistical summaries including mean, standard deviation, median, 25th/75th percentiles, IQR, skewness, and identifies potential outliers using the 1.5x IQR rule.
+- **Categorical Profiling (`profile_categorical_distributions`)**: Profiles cardinality and value frequencies for object/categorical columns.
+- **Quality Assessment Engine (`assess_data_quality`)**: Assesses completeness, uniqueness, validity, and domain constraints, returning an overall data quality score (0-100), status, issues, and warnings.
+- **Automated Test Suite (`scripts/test_dataset_profiling.py`)**: 7 automated unit tests validating all profiling functions and JSON report exports.
+
+### Files Created & Modified
+- `scripts/dataset_profiling.py`: Core profiling functions and pipeline runner.
+- `scripts/test_dataset_profiling.py`: Comprehensive unit and integration test suite.
+- `README.md`: Module documentation.
+
+### How to Run & Use
+
+```bash
+# Run the dataset profiling pipeline:
+python scripts/dataset_profiling.py
+
+# Run the automated unit tests:
+python -m unittest scripts/test_dataset_profiling.py
+```
+
+### Validation & Testing Performed
+- **Automated Tests:** All 7 unit tests passed (`OK`), verifying dimension extraction, null detection, duplicate detection, distribution metrics, outlier identification, and report export.
+- **Pipeline Execution:** Successfully profiled `data/raw/segment_sample.csv`, producing a structured audit report at `output/profiling_report.json`.
+
