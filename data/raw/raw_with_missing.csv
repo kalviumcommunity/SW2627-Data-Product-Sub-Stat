@@ -1,0 +1,11 @@
+viewer_id,user_name,country,subscription_plan,monthly_fee,watch_duration_minutes,completion_rate,viewing_date,churn
+V101,Alice Johnson,US,Premium,15.99,45.0,0.90,2025-01-01,0
+V102,Bob Smith,CA,Standard,11.99,,0.65,2025-01-02,0
+V103,,UK,,8.99,12.5,0.35,2025-01-03,1
+,Unknown User,US,Basic,8.99,25.0,0.50,2025-01-04,0
+V105,David Brown,US,Premium,,80.0,0.95,,0
+V106,Eva Green,AU,Standard,11.99,30.0,,2025-01-06,0
+V107,Frank White,,Premium,15.99,55.0,0.85,2025-01-07,0
+,Missing ID,CA,Standard,11.99,20.0,0.40,2025-01-08,1
+V109,Grace Hopper,US,Basic,8.99,,0.70,2025-01-09,0
+V110,Henry Ford,UK,Standard,11.99,60.0,0.80,2025-01-10,0

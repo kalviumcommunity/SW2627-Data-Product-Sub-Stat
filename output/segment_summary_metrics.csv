@@ -1,0 +1,4 @@
+customer_type,avg_ltv,avg_ltv_display,ltv_rank,churn_rate,churn_rate_display,churn_rank,avg_tickets_display,avg_retention_display,count,segment_share_display
+Enterprise,159000.0,"$159,000",1.0,0.0,0.0%,1.0,2.20,463 days,5,26.3%
+SMB,9916.666666666666,"$9,917",2.0,0.5,50.0%,3.0,4.50,182 days,6,31.6%
+Startup,2225.0,"$2,225",3.0,0.375,37.5%,2.0,6.00,112 days,8,42.1%
