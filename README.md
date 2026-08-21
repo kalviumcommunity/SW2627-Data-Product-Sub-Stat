@@ -142,36 +142,37 @@ deactivate
 
 ---
 
-## 5. Module 2 — Dataset Profiling & Quality Assessment
+## 5. Module 5 — Data Type Enforcement & Standardisation
 
 ### Objective
-Perform automated dataset profiling and evaluate core data quality dimensions (Completeness, Uniqueness, Distribution, Validity, and Consistency) to ensure data reliability before downstream analysis and modeling.
+Implement explicit type enforcement and standardisation routines across raw datasets (String → Datetime with strict formats, Currency/Text → Numeric, Binary/Flags → Boolean, String normalization) to prevent silent data conversion failures.
 
 ### What Was Implemented
-- **Shape & Memory Profiling (`profile_shape_and_memory`)**: Measures total rows, columns, memory usage (in bytes, KB, MB), and column names.
-- **Completeness Analysis (`profile_missing_values`)**: Detects missing cells, null counts, null percentages per column, and computes overall dataset completeness.
-- **Uniqueness & Key Checks (`profile_duplicates`)**: Calculates exact duplicate rows and verifies primary key uniqueness.
-- **Numerical Distribution Profiling (`profile_numerical_distributions`)**: Computes statistical summaries including mean, standard deviation, median, 25th/75th percentiles, IQR, skewness, and identifies potential outliers using the 1.5x IQR rule.
-- **Categorical Profiling (`profile_categorical_distributions`)**: Profiles cardinality and value frequencies for object/categorical columns.
-- **Quality Assessment Engine (`assess_data_quality`)**: Assesses completeness, uniqueness, validity, and domain constraints, returning an overall data quality score (0-100), status, issues, and warnings.
-- **Automated Test Suite (`scripts/test_dataset_profiling.py`)**: 7 automated unit tests validating all profiling functions and JSON report exports.
+- **Explicit Datetime Standardisation (`standardise_datetime`)**: Parses date strings into `datetime64[ns]` using strict, unambiguous strftime patterns (`%Y-%m-%d`), avoiding silent day/month swap anomalies.
+- **Currency & Numeric Cleaning (`standardise_numeric`)**: Strips currency symbols (`$`, `€`, `£`, `₹`), thousands commas (`,`), and non-numeric suffixes (e.g. `hrs`, `USD`), safely casting values to `float` or `int`.
+- **Boolean Standardisation (`standardise_boolean`)**: Maps integer binary flags (`0`, `1`) and text representations (`True`, `False`, `yes`, `no`) to nullable pandas `boolean` types.
+- **String & Categorical Normalization (`standardise_string`)**: Trims whitespace and normalizes text casing (`title`, `lower`, `upper`).
+- **Schema Enforcement Engine (`enforce_dataset_schema`)**: Executes schema validation rules across all columns and generates a conversion audit report with success rates and sample failure logs.
+- **Automated Test Suite (`scripts/test_data_type_standardisation.py`)**: 5 unit tests validating explicit datetime parsing, currency cleanup, boolean mapping, casing normalization, and schema enforcement.
 
 ### Files Created & Modified
-- `scripts/dataset_profiling.py`: Core profiling functions and pipeline runner.
-- `scripts/test_dataset_profiling.py`: Comprehensive unit and integration test suite.
+- `scripts/data_type_standardisation.py`: Core type standardisation engine and workflow runner.
+- `scripts/test_data_type_standardisation.py`: Comprehensive unit test suite.
+- `data/raw/raw_unstandardised.csv`: Sample raw dataset with unstandardized dates, currencies, and flags.
+- `data/processed/standardised_data.csv`: Cleaned and standardized output dataset.
 - `README.md`: Module documentation.
 
 ### How to Run & Use
 
 ```bash
-# Run the dataset profiling pipeline:
-python scripts/dataset_profiling.py
+# Run the duplicate detection and deduplication pipeline:
+python scripts/deduplication.py
 
 # Run the automated unit tests:
-python -m unittest scripts/test_dataset_profiling.py
+python -m unittest scripts/test_deduplication.py
 ```
 
 ### Validation & Testing Performed
-- **Automated Tests:** All 7 unit tests passed (`OK`), verifying dimension extraction, null detection, duplicate detection, distribution metrics, outlier identification, and report export.
-- **Pipeline Execution:** Successfully profiled `data/raw/segment_sample.csv`, producing a structured audit report at `output/profiling_report.json`.
+- **Automated Tests:** All 5 unit tests passed (`OK`), verifying exact and near-duplicate detection, `most_complete` ranking accuracy, and audit log generation.
+- **Pipeline Execution:** Successfully deduplicated `data/raw/raw_with_duplicates.csv` (10 rows -> 6 rows, 4 records removed / 40.0%), exporting `data/processed/deduplicated_data.csv`, `output/removed_duplicates_audit.csv`, and `output/deduplication_report.json`.
 

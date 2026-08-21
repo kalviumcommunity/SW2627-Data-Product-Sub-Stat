@@ -1,0 +1,9 @@
+viewer_id,user_name,signup_date,monthly_fee,watch_duration,auto_renew,churn,plan
+V101, Alice Johnson ,2025-01-10,$15.99,42.5,1,0,Premium
+V102,Bob Smith,2025-01-14,$11.99,18.2,true,0,standard
+V103,Elena Rostova,2025-01-22,$8.99,5.0,0,1,BASIC
+V104,Marcus Vance,2025-02-01,$15.99,64.0,yes,0,PREMIUM
+V105,David Brown,2025-02-15,"$1,200.50",120.5,T,0,Standard
+V106,Eva Green,2025-02-28,$11.99,30.0,0,1,standard
+V107,Frank White,2025-03-05,$15.99,55.0,False,0,Premium
+V108,Grace Hopper,2025-03-12,$8.99,8.5,1,0,Basic
