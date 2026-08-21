@@ -1,0 +1,15 @@
+{
+  "total_revenue": 4208.0,
+  "revenue_by_segment": {
+    "Enterprise": 1780,
+    "SMB": 1289,
+    "Startup": 1139
+  },
+  "revenue_by_product": {
+    "Security": 1569,
+    "Analytics": 1370,
+    "Core": 1269
+  },
+  "segment_sum_matches_total": true,
+  "product_sum_matches_total": true
+}

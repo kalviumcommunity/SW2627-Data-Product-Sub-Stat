@@ -1,0 +1,26 @@
+{
+  "monthly_active_users": {
+    "value": 10,
+    "formatted": "10"
+  },
+  "revenue_per_customer": {
+    "value": 280.53333333333336,
+    "formatted": "$280.53"
+  },
+  "churn_rate": {
+    "value": 0.5,
+    "formatted": "50.0%"
+  },
+  "payment_success_rate": {
+    "value": 0.8666666666666667,
+    "formatted": "86.7%"
+  },
+  "customer_acquisition_cost": {
+    "value": 50.333333333333336,
+    "formatted": "$50.33"
+  },
+  "total_revenue": {
+    "value": 4208.0,
+    "formatted": "$4,208.00"
+  }
+}
