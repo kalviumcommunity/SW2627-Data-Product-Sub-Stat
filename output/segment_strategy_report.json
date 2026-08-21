@@ -1,0 +1,59 @@
+{
+  "summary_table": [
+    {
+      "customer_type": "Enterprise",
+      "avg_ltv": 159000.0,
+      "avg_ltv_display": "$159,000",
+      "ltv_rank": 1.0,
+      "churn_rate": 0.0,
+      "churn_rate_display": "0.0%",
+      "churn_rank": 1.0,
+      "avg_tickets_display": "2.20",
+      "avg_retention_display": "463 days",
+      "count": 5,
+      "segment_share_display": "26.3%"
+    },
+    {
+      "customer_type": "SMB",
+      "avg_ltv": 9916.666666666666,
+      "avg_ltv_display": "$9,917",
+      "ltv_rank": 2.0,
+      "churn_rate": 0.5,
+      "churn_rate_display": "50.0%",
+      "churn_rank": 3.0,
+      "avg_tickets_display": "4.50",
+      "avg_retention_display": "182 days",
+      "count": 6,
+      "segment_share_display": "31.6%"
+    },
+    {
+      "customer_type": "Startup",
+      "avg_ltv": 2225.0,
+      "avg_ltv_display": "$2,225",
+      "ltv_rank": 3.0,
+      "churn_rate": 0.375,
+      "churn_rate_display": "37.5%",
+      "churn_rank": 2.0,
+      "avg_tickets_display": "6.00",
+      "avg_retention_display": "112 days",
+      "count": 8,
+      "segment_share_display": "42.1%"
+    }
+  ],
+  "performer_insights": {
+    "highest_value_segment": {
+      "name": "Enterprise",
+      "avg_ltv": 159000.0
+    },
+    "highest_churn_segment": {
+      "name": "SMB",
+      "churn_rate": 0.5
+    },
+    "best_retention_segment": {
+      "name": "Enterprise",
+      "avg_retention": 463.0
+    }
+  },
+  "business_summary": "SEGMENT STRATEGY SUMMARY:\nEnterprise (26.3% of base, $159,000 avg LTV, 0.0% churn):\n- Action: Maintain premium support and proactive retention programs\nSMB (31.6% of base, $9,917 avg LTV, 50.0% churn):\n- Action: Improve onboarding and guided support to reduce churn risk\nStartup (42.1% of base, $2,225 avg LTV, 37.5% churn):\n- Action: Improve onboarding and guided support to reduce churn risk",
+  "heatmap": "/Users/AADEEP/Documents/code /S5.1/SW2627-Data-Product-Sub-Stat/output/segment_heatmap.png"
+}

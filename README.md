@@ -165,14 +165,14 @@ Implement explicit type enforcement and standardisation routines across raw data
 ### How to Run & Use
 
 ```bash
-# Run the data type enforcement pipeline:
-python scripts/data_type_standardisation.py
+# Run the duplicate detection and deduplication pipeline:
+python scripts/deduplication.py
 
 # Run the automated unit tests:
-python -m unittest scripts/test_data_type_standardisation.py
+python -m unittest scripts/test_deduplication.py
 ```
 
 ### Validation & Testing Performed
-- **Automated Tests:** All 5 unit tests passed (`OK`), verifying conversion accuracy, failure reporting on invalid dates/currencies, and boolean mapping.
-- **Pipeline Execution:** Standardized `data/raw/raw_unstandardised.csv` (8 records), converting all columns to explicit schemas with 100% success rate, producing `data/processed/standardised_data.csv` and `output/type_enforcement_report.json`.
+- **Automated Tests:** All 5 unit tests passed (`OK`), verifying exact and near-duplicate detection, `most_complete` ranking accuracy, and audit log generation.
+- **Pipeline Execution:** Successfully deduplicated `data/raw/raw_with_duplicates.csv` (10 rows -> 6 rows, 4 records removed / 40.0%), exporting `data/processed/deduplicated_data.csv`, `output/removed_duplicates_audit.csv`, and `output/deduplication_report.json`.
 
