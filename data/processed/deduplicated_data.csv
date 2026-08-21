@@ -1,0 +1,7 @@
+viewer_id,user_name,content_id,watch_date,watch_duration,completion_rate,subscription_status
+V101,Alice Johnson,C201,2025-01-15,45.0,0.9,Active
+V102,Bob Smith,C202,2025-01-16,20.0,0.4,Active
+V103,Elena Rostova,C203,2025-01-17,50.0,1.0,Cancelled
+V104,Marcus Vance,C204,2025-01-18,60.0,0.95,Active
+V105,David Brown,C205,2025-01-19,35.0,0.7,Active
+V106,Eva Green,C206,2025-01-20,15.0,0.3,Active
