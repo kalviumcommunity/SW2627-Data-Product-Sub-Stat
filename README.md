@@ -142,38 +142,37 @@ deactivate
 
 ---
 
-## 5. Module 3 — Data Dictionary & Business Context Mapping
+## 5. Module 5 — Data Type Enforcement & Standardisation
 
 ### Objective
-Establish a formal, comprehensive data dictionary mapping all dataset fields to their technical specifications, data types, business definitions, constraints, and business domain objectives for the streaming analytics platform.
+Implement explicit type enforcement and standardisation routines across raw datasets (String → Datetime with strict formats, Currency/Text → Numeric, Binary/Flags → Boolean, String normalization) to prevent silent data conversion failures.
 
 ### What Was Implemented
-- **Business Domain Segmentation**:
-  1. **User & Subscription Domain**: Account identifiers, demographics, subscription plans, pricing, and billing preferences (`viewer_id`, `user_name`, `country`, `signup_date`, `subscription_plan`, `monthly_fee`, `auto_renew`).
-  2. **Viewing Consumption Domain**: Content metadata, timestamps, session duration, and asset runtimes (`content_id`, `content_title`, `genre`, `watch_date`, `watch_duration_minutes`, `total_content_duration_minutes`).
-  3. **Engagement Dynamics Domain**: Granular engagement metrics and behavioral indicators (`completion_rate`, `pause_frequency`, `episodes_watched`, `viewing_frequency_per_week`, `binge_watching_flag`).
-  4. **Retention & Churn Domain**: Churn outcome indicators, risk scoring, and customer lifetime value (`subscription_status`, `churn`, `retention_risk_tier`, `customer_lifetime_value`).
-- **Comprehensive Documentation ([docs/data_dictionary.md](docs/data_dictionary.md))**: Full reference detailing data types, constraints, descriptions, and business purpose.
-- **Data Dictionary Engine (`scripts/data_dictionary.py`)**: Provides schema lookup, domain filtering (`get_fields_by_domain`), DataFrame schema validation (`validate_dataframe_schema`), and JSON export (`export_data_dictionary_json`).
-- **Automated Test Suite (`scripts/test_data_dictionary.py`)**: 4 unit tests validating dictionary completeness, domain partitioning, schema compliance, and JSON export.
+- **Explicit Datetime Standardisation (`standardise_datetime`)**: Parses date strings into `datetime64[ns]` using strict, unambiguous strftime patterns (`%Y-%m-%d`), avoiding silent day/month swap anomalies.
+- **Currency & Numeric Cleaning (`standardise_numeric`)**: Strips currency symbols (`$`, `€`, `£`, `₹`), thousands commas (`,`), and non-numeric suffixes (e.g. `hrs`, `USD`), safely casting values to `float` or `int`.
+- **Boolean Standardisation (`standardise_boolean`)**: Maps integer binary flags (`0`, `1`) and text representations (`True`, `False`, `yes`, `no`) to nullable pandas `boolean` types.
+- **String & Categorical Normalization (`standardise_string`)**: Trims whitespace and normalizes text casing (`title`, `lower`, `upper`).
+- **Schema Enforcement Engine (`enforce_dataset_schema`)**: Executes schema validation rules across all columns and generates a conversion audit report with success rates and sample failure logs.
+- **Automated Test Suite (`scripts/test_data_type_standardisation.py`)**: 5 unit tests validating explicit datetime parsing, currency cleanup, boolean mapping, casing normalization, and schema enforcement.
 
 ### Files Created & Modified
-- `docs/data_dictionary.md`: Complete domain reference guide and data dictionary tables.
-- `scripts/data_dictionary.py`: Programmatic schema definitions and validation logic.
-- `scripts/test_data_dictionary.py`: Automated test suite for data dictionary rules.
+- `scripts/data_type_standardisation.py`: Core type standardisation engine and workflow runner.
+- `scripts/test_data_type_standardisation.py`: Comprehensive unit test suite.
+- `data/raw/raw_unstandardised.csv`: Sample raw dataset with unstandardized dates, currencies, and flags.
+- `data/processed/standardised_data.csv`: Cleaned and standardized output dataset.
 - `README.md`: Module documentation.
 
 ### How to Run & Use
 
 ```bash
-# Inspect and export the data dictionary to JSON:
-python scripts/data_dictionary.py
+# Run the duplicate detection and deduplication pipeline:
+python scripts/deduplication.py
 
 # Run the automated unit tests:
-python -m unittest scripts/test_data_dictionary.py
+python -m unittest scripts/test_deduplication.py
 ```
 
 ### Validation & Testing Performed
-- **Automated Tests:** All 4 unit tests passed (`OK`), verifying field definitions, domain partitioning, DataFrame schema matching, and JSON export.
-- **Export Verification:** Successfully generated schema export at `output/data_dictionary.json`.
+- **Automated Tests:** All 5 unit tests passed (`OK`), verifying exact and near-duplicate detection, `most_complete` ranking accuracy, and audit log generation.
+- **Pipeline Execution:** Successfully deduplicated `data/raw/raw_with_duplicates.csv` (10 rows -> 6 rows, 4 records removed / 40.0%), exporting `data/processed/deduplicated_data.csv`, `output/removed_duplicates_audit.csv`, and `output/deduplication_report.json`.
 

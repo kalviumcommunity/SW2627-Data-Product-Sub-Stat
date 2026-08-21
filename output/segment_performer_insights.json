@@ -1,0 +1,14 @@
+{
+  "highest_value_segment": {
+    "name": "Enterprise",
+    "avg_ltv": 159000.0
+  },
+  "highest_churn_segment": {
+    "name": "SMB",
+    "churn_rate": 0.5
+  },
+  "best_retention_segment": {
+    "name": "Enterprise",
+    "avg_retention": 463.0
+  }
+}
