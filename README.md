@@ -139,3 +139,42 @@ To deactivate the virtual environment when you are finished:
 ```bash
 deactivate
 ```
+
+---
+
+## 5. Module 6 — Duplicate Detection & Record Deduplication
+
+### Objective
+Implement automated exact and near-duplicate detection using domain business keys, execute defensible deduplication strategies (`most_complete`, `first`, `last`), and maintain a granular audit trail of removed records.
+
+### What Was Implemented
+- **Exact Duplicate Detection (`detect_exact_duplicates`)**: Scans the entire dataset for identical rows, calculating duplicate row counts and percentages.
+- **Near-Duplicate Key Detection (`detect_near_duplicates`)**: Identifies colliding records sharing primary or composite business keys (`viewer_id`, `content_id`, `watch_date`) with differing non-key attributes.
+- **Defensible Deduplication Engine (`deduplicate_dataset`)**:
+  - **`most_complete`**: Prioritizes and retains the record with the maximum number of populated, non-null features.
+  - **`first` / `last`**: Retains either the earliest or latest record based on chronological ordering.
+  - **Audit Logging**: Extracts all removed records into an audit dataset with timestamp, removal rationale, and strategy metadata.
+- **Audit Reporting (`generate_deduplication_report`)**: Generates structured before vs. after metrics (rows before, rows after, records removed, percentage reduction).
+- **Automated Test Suite (`scripts/test_deduplication.py`)**: 5 unit tests validating exact duplicate detection, near-duplicate grouping, `most_complete` preference, and audit export.
+
+### Files Created & Modified
+- `scripts/deduplication.py`: Core deduplication engine and pipeline runner.
+- `scripts/test_deduplication.py`: Comprehensive unit test suite.
+- `data/raw/raw_with_duplicates.csv`: Sample raw dataset with exact and near duplicates.
+- `data/processed/deduplicated_data.csv`: Cleaned, deduplicated output dataset.
+- `README.md`: Module documentation.
+
+### How to Run & Use
+
+```bash
+# Run the duplicate detection and deduplication pipeline:
+python scripts/deduplication.py
+
+# Run the automated unit tests:
+python -m unittest scripts/test_deduplication.py
+```
+
+### Validation & Testing Performed
+- **Automated Tests:** All 5 unit tests passed (`OK`), verifying exact and near-duplicate detection, `most_complete` ranking accuracy, and audit log generation.
+- **Pipeline Execution:** Successfully deduplicated `data/raw/raw_with_duplicates.csv` (10 rows -> 6 rows, 4 records removed / 40.0%), exporting `data/processed/deduplicated_data.csv`, `output/removed_duplicates_audit.csv`, and `output/deduplication_report.json`.
+
