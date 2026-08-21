@@ -1,0 +1,7 @@
+kpi,actual,formatted,target_min,target_max,status
+monthly_active_users,10.0,10,9.0,12.0,PASS
+revenue_per_customer,280.53333333333336,$280.53,120.0,170.0,ALERT
+churn_rate,0.5,50.0%,0.0,0.35,ALERT
+payment_success_rate,0.8666666666666667,86.7%,0.9,1.0,ALERT
+customer_acquisition_cost,50.333333333333336,$50.33,30.0,55.0,PASS
+total_revenue,4208.0,"$4,208.00",1500.0,2500.0,ALERT

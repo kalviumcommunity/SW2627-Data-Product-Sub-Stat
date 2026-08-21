@@ -1,0 +1,26 @@
+{
+  "monthly_active_users": {
+    "min": 9,
+    "max": 12
+  },
+  "revenue_per_customer": {
+    "min": 120,
+    "max": 170
+  },
+  "churn_rate": {
+    "min": 0,
+    "max": 0.35
+  },
+  "payment_success_rate": {
+    "min": 0.9,
+    "max": 1.0
+  },
+  "customer_acquisition_cost": {
+    "min": 30,
+    "max": 55
+  },
+  "total_revenue": {
+    "min": 1500,
+    "max": 2500
+  }
+}
