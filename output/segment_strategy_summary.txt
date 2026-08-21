@@ -1,0 +1,7 @@
+SEGMENT STRATEGY SUMMARY:
+Enterprise (26.3% of base, $159,000 avg LTV, 0.0% churn):
+- Action: Maintain premium support and proactive retention programs
+SMB (31.6% of base, $9,917 avg LTV, 50.0% churn):
+- Action: Improve onboarding and guided support to reduce churn risk
+Startup (42.1% of base, $2,225 avg LTV, 37.5% churn):
+- Action: Improve onboarding and guided support to reduce churn risk
