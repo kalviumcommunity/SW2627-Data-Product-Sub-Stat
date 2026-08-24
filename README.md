@@ -176,3 +176,53 @@ python -m unittest scripts/test_deduplication.py
 - **Automated Tests:** All 5 unit tests passed (`OK`), verifying exact and near-duplicate detection, `most_complete` ranking accuracy, and audit log generation.
 - **Pipeline Execution:** Successfully deduplicated `data/raw/raw_with_duplicates.csv` (10 rows -> 6 rows, 4 records removed / 40.0%), exporting `data/processed/deduplicated_data.csv`, `output/removed_duplicates_audit.csv`, and `output/deduplication_report.json`.
 
+---
+
+## 6. Module 2 — Data Consistency & Validation Rules
+
+### Objective
+Implement a multi-category rule validation framework supporting range assertions, mandatory field null checks, regex format validation, relational referential integrity against catalog primary keys, and business rules (e.g. `end_time >= start_time`), isolating non-conforming records and generating structured audit reports.
+
+### What Was Implemented
+- **Range Constraint Validator (`check_range`)**: Verifies that numeric attributes (e.g. `watch_duration_mins` between 0 and 600, `user_rating` between 1.0 and 5.0) fall within predefined boundaries.
+- **Required & Null Assertions (`check_required_fields`)**: Identifies missing, NaN, or whitespace-only records in mandatory business keys (`viewer_id`, `content_id`, `start_time`).
+- **Regex & Format Pattern Validation (`check_regex_format`)**: Evaluates string representations against domain regex specifications (e.g. `^V\d{3,}$` for viewer IDs and standard email syntax).
+- **Referential Integrity Enforcement (`check_referential_integrity`)**: Validates foreign key relationships against parent catalogs (`content_catalog.csv`), flagging orphan records.
+- **Domain Business Rules (`check_date_order`)**: Ensures logical session chronology (`end_time >= start_time`).
+- **Validation Engine (`DataValidator`)**:
+  - Executes modular registered rules and generates boolean evaluation matrices.
+  - Slices datasets into clean passing records and failing records enriched with `_failed_rules` and `_failure_reasons`.
+  - Generates comprehensive pass/fail statistics and per-rule breakdown metrics.
+- **Automated Test Suite (`scripts/test_data_validation.py`)**: 7 unit tests testing each rule validator individually and validating end-to-end multi-rule pipeline execution.
+
+### Files Created & Modified
+- `scripts/data_validation.py`: Core data validation engine and rule pipeline.
+- `scripts/test_data_validation.py`: Unit test suite.
+- `data/raw/content_catalog.csv`: Master reference catalog for referential integrity.
+- `data/raw/validation_sample.csv`: Sample intake dataset with valid and controlled violation records.
+- `data/processed/clean_validated_records.csv`: Clean subset passing all validation rules.
+- `data/processed/failed_validation_records.csv`: Quarantined records with failure reason metadata.
+- `output/data_validation_report.json`: Structured validation audit report.
+- `README.md`: Module documentation.
+
+### Technologies & Functions Used
+- **Technologies**: Python 3.10+, Pandas, Regular Expressions (`re`), Unittest, JSON, Logging.
+- **Key Functions**: `re.compile()`, `pd.to_numeric()`, `pd.to_datetime()`, `.isin()`, `.notna()`, `.all(axis=1)`.
+
+### How to Run & Test
+
+```bash
+# Run the Data Consistency & Validation Pipeline:
+python scripts/data_validation.py
+
+# Run the automated unit tests:
+python -m unittest scripts/test_data_validation.py
+```
+
+### Example & Result Summary
+- **Intake Evaluated:** 10 records across 6 active validation rules.
+- **Clean Records:** 3 passed all rules (30.0% pass rate).
+- **Quarantined Records:** 7 failed at least one rule with specific failure explanations attached.
+- **Automated Tests:** 7/7 unit tests passing (`OK`).
+
+
