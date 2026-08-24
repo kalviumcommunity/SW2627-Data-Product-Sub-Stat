@@ -176,3 +176,54 @@ python -m unittest scripts/test_deduplication.py
 - **Automated Tests:** All 5 unit tests passed (`OK`), verifying exact and near-duplicate detection, `most_complete` ranking accuracy, and audit log generation.
 - **Pipeline Execution:** Successfully deduplicated `data/raw/raw_with_duplicates.csv` (10 rows -> 6 rows, 4 records removed / 40.0%), exporting `data/processed/deduplicated_data.csv`, `output/removed_duplicates_audit.csv`, and `output/deduplication_report.json`.
 
+---
+
+## 6. Module 4 — Feature Engineering & Derived Business Columns
+
+### Objective
+Derive actionable behavioral features and business metrics from raw activity data: construct zero-safe ratio features (`transactions_per_month`, `avg_spend_per_transaction`, `completion_rate`, `watch_hours_per_active_day`), discretize attributes into domain (`pd.cut`) and quantile (`pd.qcut`) tiers, compute multi-factor composite RFM subscriber scores, validate resulting statistical distributions, and catalog business feature definitions.
+
+### What Was Implemented
+- **Safe-Division Ratio Engine (`safe_divide`, `create_ratio_features`)**:
+  - Eliminates zero-division errors and infinite values using `np.where` and array clipping.
+  - Derives `transactions_per_month`, `avg_spend_per_transaction`, `completion_rate`, and `watch_hours_per_active_day`.
+- **Domain & Quantile Binning (`create_binned_features`)**:
+  - `spend_tier`: Domain-defined monetary brackets using `pd.cut` (`Low`, `Medium`, `High`, `VIP`).
+  - `engagement_quantile`: Quantile-based cohort discretization using `pd.qcut` (`Q1_Low` to `Q4_Power`).
+- **Composite RFM Scoring & Lifecycle Segmentation (`calculate_rfm_composite_scores`)**:
+  - Derives 1–5 ranked scores for Recency ($R$), Frequency ($F$), and Monetary ($M$).
+  - Computes weighted composite RFM score: $Index = (0.20 \cdot R + 0.30 \cdot F + 0.50 \cdot M) \times 20$ (20–100 scale).
+  - Assigns actionable lifecycle segments: `Champion`, `Loyal Subscriber`, `Potential Loyalist`, `At-Risk`, `Hibernating`.
+- **Feature Distribution Validation (`validate_feature_distributions`)**: Computes statistical moments (mean, std, min, max, median, skewness) and audits for null/infinite values.
+- **Automated Unit Test Suite (`scripts/test_feature_engineering.py`)**: 6 unit tests validating division safety, ratio calculations, binning accuracy, RFM index bounds, and distribution checks.
+
+### Files Created & Modified
+- `scripts/feature_engineering.py`: Core feature engineering pipeline and metadata catalog.
+- `scripts/test_feature_engineering.py`: Unit test suite.
+- `data/raw/viewer_engagement_features.csv`: Intake dataset with engagement and purchase history.
+- `data/processed/feature_engineered_data.csv`: Output dataset enriched with engineered features.
+- `output/feature_engineering_report.json`: Feature catalog, moment statistics, and segment distributions.
+- `README.md`: Module documentation.
+
+### Technologies & Functions Used
+- **Technologies**: Python 3.10+, Pandas, NumPy, Unittest, JSON, Logging.
+- **Key Functions**: `np.where()`, `pd.cut()`, `pd.qcut()`, `Series.rank()`, `Series.skew()`, `DataFrame.quantile()`.
+
+### How to Run & Test
+
+```bash
+# Run the Feature Engineering Pipeline:
+python scripts/feature_engineering.py
+
+# Run the automated unit tests:
+python -m unittest scripts/test_feature_engineering.py
+```
+
+### Example & Result Summary
+- **Input Dimensions:** 12 subscriber records $\times$ 9 raw columns.
+- **Engineered Dimensions:** 12 records $\times$ 17 enriched columns (8 new features added).
+- **Distribution Integrity:** 0 nulls, 0 infinities across all derived numerical features.
+- **Segment Breakdown:** Champions (25.0%), Loyal Subscribers (33.3%), Potential Loyalists (16.7%), At-Risk / Hibernating (25.0%).
+- **Automated Tests:** 6/6 unit tests passing (`OK`).
+
+
