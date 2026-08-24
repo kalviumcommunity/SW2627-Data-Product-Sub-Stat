@@ -176,3 +176,60 @@ python -m unittest scripts/test_deduplication.py
 - **Automated Tests:** All 5 unit tests passed (`OK`), verifying exact and near-duplicate detection, `most_complete` ranking accuracy, and audit log generation.
 - **Pipeline Execution:** Successfully deduplicated `data/raw/raw_with_duplicates.csv` (10 rows -> 6 rows, 4 records removed / 40.0%), exporting `data/processed/deduplicated_data.csv`, `output/removed_duplicates_audit.csv`, and `output/deduplication_report.json`.
 
+---
+
+## 6. Module 5 — NumPy Vectorised Computation & Performance Benchmarking
+
+### Objective
+Identify iterative Python loop bottlenecks in numerical data processing, implement both baseline loop and high-performance NumPy vectorized equivalents for Min-Max normalization, Z-score standardization, and multi-variable non-linear metric calculations, integrate vectorized arrays into pandas DataFrames, benchmark execution runtimes across dataset scales (1,000 to 100,000 rows), and document architectural performance advantages.
+
+### What Was Implemented
+- **Min-Max Normalization (`min_max_normalize_loop` vs. `min_max_normalize_vectorized`)**: Scales features into $[0.0, 1.0]$. NumPy vectorized routine replaces iterative element-by-element loops with compiled array SIMD operations.
+- **Z-Score Standardization (`z_score_standardize_loop` vs. `z_score_standardize_vectorized`)**: Centers data at $\mu = 0.0$ with $\sigma = 1.0$. Vectorized implementation leverages single-pass C statistics.
+- **Multi-Variable Composite Non-Linear Score (`compute_composite_score_loop` vs. `compute_composite_score_vectorized`)**: Implements exponential decay penalties and logarithmic scaling using NumPy universal functions (`np.power`, `np.log1p`, `np.exp`).
+- **DataFrame Integration (`integrate_vectorized_features`)**: Enriches tabular datasets directly with vectorized normalized series and composite engagement indices.
+- **Empirical Benchmarking Engine (`benchmark_operation`, `run_numpy_vectorization_pipeline`)**: Executes multi-trial runtime measurements across multiple scales ($N = 1\text{k}, 10\text{k}, 100\text{k}$), computing speedup multipliers ($T_{\text{loop}} / T_{\text{vectorized}}$).
+- **Architectural Rationale**:
+  - *Memory Layout & Cache Locality*: NumPy utilizes contiguous C-order memory buffers, maximizing CPU L1/L2 cache hit rates and enabling hardware prefetching.
+  - *SIMD Hardware Parallelism*: Universal functions map directly to CPU vector registers (AVX2/AVX-512), processing 4 to 8 floating-point values per clock cycle.
+  - *Interpreter Overhead Elimination*: Bypasses Python's dynamic type inspection, object boxing/unboxing, and bytecode evaluation loop.
+- **Automated Unit Test Suite (`scripts/test_numpy_vectorization.py`)**: 6 unit tests confirming exact numerical equivalence (`np.testing.assert_allclose`), statistical properties ($\mu=0, \sigma=1$), DataFrame integration, and benchmark performance.
+
+### Files Created & Modified
+- `scripts/numpy_vectorization.py`: Core baseline loops, vectorized implementations, DataFrame integration, and benchmark suite.
+- `scripts/test_numpy_vectorization.py`: Unit test suite.
+- `data/processed/vectorized_computations_data.csv`: Output dataset enriched with vectorized columns.
+- `output/numpy_vectorization_benchmark.json`: Multi-scale benchmark results and architectural documentation.
+- `README.md`: Module documentation.
+
+### Technologies & Functions Used
+- **Technologies**: Python 3.10+, NumPy, Pandas, Unittest, JSON, Logging.
+- **Key Functions**: `np.min()`, `np.max()`, `np.mean()`, `np.std()`, `np.power()`, `np.log1p()`, `np.exp()`, `time.perf_counter()`, `np.testing.assert_allclose()`.
+
+### How to Run & Test
+
+```bash
+# Run the NumPy Vectorization Pipeline and multi-scale benchmark:
+python scripts/numpy_vectorization.py
+
+# Run the automated unit tests:
+python -m unittest scripts/test_numpy_vectorization.py
+```
+
+### Benchmark Results & Performance Summary
+
+| Dataset Scale (Rows) | Operation | Baseline Loop Time | Vectorized Time | Speedup Factor |
+| :--- | :--- | :--- | :--- | :--- |
+| **1,000** | Min-Max Normalization | ~0.15 ms | ~0.04 ms | **3.7x** |
+| **1,000** | Z-Score Standardization | ~0.26 ms | ~0.06 ms | **3.9x** |
+| **1,000** | Composite Non-Linear | ~0.84 ms | ~0.13 ms | **6.6x** |
+| **10,000** | Min-Max Normalization | ~1.65 ms | ~0.12 ms | **14.3x** |
+| **10,000** | Z-Score Standardization | ~2.72 ms | ~0.17 ms | **16.3x** |
+| **10,000** | Composite Non-Linear | ~8.45 ms | ~1.60 ms | **5.3x** |
+| **100,000** | Min-Max Normalization | ~16.2 ms | ~1.41 ms | **11.5x** |
+| **100,000** | Z-Score Standardization | ~27.3 ms | ~1.74 ms | **15.7x** |
+| **100,000** | Composite Non-Linear | ~85.2 ms | ~12.1 ms | **7.0x** |
+
+- **Unit Tests:** 6/6 tests passing (`OK`).
+
+
