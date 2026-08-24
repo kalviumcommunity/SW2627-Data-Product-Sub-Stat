@@ -176,3 +176,54 @@ python -m unittest scripts/test_deduplication.py
 - **Automated Tests:** All 5 unit tests passed (`OK`), verifying exact and near-duplicate detection, `most_complete` ranking accuracy, and audit log generation.
 - **Pipeline Execution:** Successfully deduplicated `data/raw/raw_with_duplicates.csv` (10 rows -> 6 rows, 4 records removed / 40.0%), exporting `data/processed/deduplicated_data.csv`, `output/removed_duplicates_audit.csv`, and `output/deduplication_report.json`.
 
+---
+
+## 6. Module 3 — Multi-Source Merging & Join Validation
+
+### Objective
+Perform audited multi-source dataset merges across distinct relational entities (e.g. viewer profiles and subscription events), assess merge cardinality (`one_to_one`, `one_to_many`, `many_to_one`, `many_to_many`), audit pre- and post-merge row counts, isolate unmatched keys on both sides, and document defensible business rationale for the selected join strategy.
+
+### What Was Implemented
+- **Join Key Schema & Nullity Validation**: Asserts merge key existence and measures nullity on left and right datasets before executing merges.
+- **Cardinality Assessment Engine (`assess_cardinality`)**: Inspects key uniqueness across both DataFrames to categorize relationship structure (`one_to_one`, `one_to_many`, `many_to_one`, `many_to_many`).
+- **Indicator-Based Merge & Key Isolation (`perform_validated_merge`)**:
+  - Leverages pandas `_merge` indicator to classify records into `both`, `left_only`, and `right_only`.
+  - Automatically isolates and exports unmatched left records (e.g., viewers with no subscription activity) and unmatched right records (e.g., orphan transactions without master user profiles).
+  - Calculates match rates and verifies row count integrity between source and target datasets.
+- **Business Rationale Documentation**: Explicitly links the chosen join type (`left`, `inner`, `right`, `outer`) with data governance and business objectives.
+- **Automated Unit Test Suite (`scripts/test_join_validation.py`)**: 5 unit tests verifying cardinality detection, left join unmatched isolation, inner join filtering, missing key handling, and end-to-end pipeline execution.
+
+### Files Created & Modified
+- `scripts/join_validation.py`: Core multi-source merging and join integrity engine.
+- `scripts/test_join_validation.py`: Unit test suite.
+- `data/raw/viewers_master.csv`: Primary viewer master profile dataset.
+- `data/raw/subscription_events.csv`: Secondary transactional subscription event log.
+- `data/processed/merged_dataset.csv`: Clean merged analytical dataset.
+- `output/unmatched_left_records.csv`: Isolated records found only in left dataset.
+- `output/unmatched_right_records.csv`: Isolated orphan records found only in right dataset.
+- `output/join_validation_report.json`: Structured merge audit and cardinality report.
+- `README.md`: Module documentation.
+
+### Technologies & Functions Used
+- **Technologies**: Python 3.10+, Pandas, Unittest, JSON, Logging.
+- **Key Functions**: `pd.merge()`, `indicator=True`, `Series.is_unique`, `DataFrame.isna()`, `DataFrame.drop_duplicates()`.
+
+### How to Run & Test
+
+```bash
+# Run the Multi-Source Merging & Join Validation Pipeline:
+python scripts/join_validation.py
+
+# Run the automated unit tests:
+python -m unittest scripts/test_join_validation.py
+```
+
+### Example & Result Summary
+- **Source Datasets:** 11 master viewers (left) + 13 subscription events (right).
+- **Cardinality Detected:** `one_to_many`.
+- **Join Result (Left Join):** 12 merged rows produced.
+- **Unmatched Left:** 1 viewer (`V199`) with no payment events isolated to `output/unmatched_left_records.csv`.
+- **Unmatched Right:** 2 orphan transactions (`V998`, `V999`) quarantined to `output/unmatched_right_records.csv`.
+- **Automated Tests:** 5/5 unit tests passing (`OK`).
+
+
