@@ -225,4 +225,60 @@ python -m unittest scripts/test_date_time_transformation.py
 - **Aggregated Output:** Weekly and monthly summaries aggregating total watch duration and session frequencies.
 - **Unit Tests:** 6/6 tests passing (`OK`).
 
+---
+
+## 7. SQL Module 2 — SQL Business Metrics Query Design
+
+### Objective
+Design and implement reusable, documented SQL query files for core subscription and engagement business metrics, and build a modular Python execution workflow returning structured Pandas DataFrames. Ensure unambiguous and uniform metric definitions across SQL queries and application layers.
+
+### What Was Implemented
+- **Modular SQL Metric Library (`queries/`)**:
+  - `monthly_active_viewers.sql`: Computes Monthly Active Viewers (MAV), unique viewer counts, session volume, and average watch duration per calendar month (`strftime('%Y-%m')`).
+  - `revenue_by_plan_tier.sql`: Calculates total completed revenue, distinct subscriber count, transaction counts, and Average Revenue Per User (ARPU = Total Revenue / Paying Subscribers) per plan tier.
+  - `payment_conversion_rate.sql`: Quantifies payment attempt success rate percentage and realized revenue per tier using `CASE WHEN` conditional aggregation.
+  - `monthly_revenue_trend.sql`: Aggregates chronological Monthly Recurring Revenue (MRR) trends, transaction counts, and average payment ticket size.
+  - `content_completion_rate.sql`: Measures content completion rate percentages and average viewing durations across genres.
+- **Python Execution Runner (`scripts/business_metrics.py`)**:
+  - `load_sql_query()`: Reads query files dynamically from disk with utf-8 encoding.
+  - `execute_metric_query()`: Executes individual parameterized or non-parameterized SQL files against SQLAlchemy engine and returns clean Pandas DataFrames.
+  - `run_all_metrics()`: Discovers and executes all `.sql` metric definitions in `queries/`.
+- **Automated Unit Test Suite (`scripts/test_business_metrics.py`)**: 7 unit tests verifying SQL parsing, isolated database execution, mathematical consistency, and metric integrity.
+
+### Files Created & Modified
+- `queries/monthly_active_viewers.sql`: Monthly active viewer count and session metrics.
+- `queries/revenue_by_plan_tier.sql`: Plan-level revenue aggregation and ARPU.
+- `queries/payment_conversion_rate.sql`: Transaction conversion and success rate.
+- `queries/monthly_revenue_trend.sql`: Time-series monthly revenue trend.
+- `queries/content_completion_rate.sql`: Genre-level content completion percentage.
+- `scripts/business_metrics.py`: Modular Python execution workflow and reporting CLI.
+- `scripts/test_business_metrics.py`: Unit test suite.
+- `README.md`: Module documentation.
+
+### Database & Tables Involved
+- **Database**: SQLite (`data/sub_stat.db`) / in-memory SQLite engine
+- **Tables**: `viewer_activity`, `viewers`, `subscription_events`, `content_catalog`
+
+### Technologies & SQL Concepts Used
+- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, unittest.
+- **Concepts**: Reusable `.sql` file modularity, date formatting with `strftime('%Y-%m')`, conditional aggregation (`CASE WHEN ... THEN 1 ELSE 0 END`), multi-table relational joins (`INNER JOIN`, `LEFT JOIN`), `COALESCE` null-fallback handling, `ROUND` floating point formatting, `COUNT(DISTINCT)`.
+
+### How to Run & Test
+
+```bash
+# Execute all business metrics queries and view formatted tabular summaries:
+python scripts/business_metrics.py
+
+# Run the automated unit test suite:
+python -m unittest scripts/test_business_metrics.py
+```
+
+### Validation & Test Results
+- **Unit Tests:** 7/7 tests passing (`OK`) in ~0.15s.
+- **Live Output Summary:**
+  - `monthly_active_viewers`: 6 MAV in 2025-01 (10 sessions, 32.25 avg mins), 4 MAV in 2025-02 (4 sessions, 51.25 avg mins), 2 MAV in 2025-03 (2 sessions, 36.25 avg mins).
+  - `revenue_by_plan_tier`: Premium generated $99.95 (ARPU $24.99, 4 users), Standard generated $29.98 (ARPU $14.99, 2 users), Basic generated $29.97 (ARPU $9.99, 3 users).
+  - `payment_conversion_rate`: Premium 100% success ($99.95), Basic 100% success ($29.97), Standard 66.67% success ($29.98).
+  - `monthly_revenue_trend`: 7 consecutive monthly revenue periods (Jan-Jul 2025).
+
 
