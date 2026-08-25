@@ -225,4 +225,58 @@ python -m unittest scripts/test_date_time_transformation.py
 - **Aggregated Output:** Weekly and monthly summaries aggregating total watch duration and session frequencies.
 - **Unit Tests:** 6/6 tests passing (`OK`).
 
+---
+
+## 7. SQL Module 3 — SQL Filtering, Grouping & Aggregation
+
+### Objective
+Implement and validate SQL workflows demonstrating `WHERE`, `GROUP BY`, `HAVING`, and `ORDER BY` / `LIMIT` using the platform's relational tables. Rigorously demonstrate and measure the critical structural difference between row-level filtering before aggregation (`WHERE`) versus group-level filtering after aggregation (`HAVING`).
+
+### What Was Implemented
+- **Modular SQL Demonstration Queries (`queries/`)**:
+  - `filter_where_demo.sql`: Pre-aggregation row filtering selecting completed billing transactions with payment amounts $\ge \$10.00$.
+  - `group_by_aggregation.sql`: Multi-dimensional aggregation across `plan_tier` and `country` calculating aggregate metrics (`COUNT`, `COUNT(DISTINCT)`, `SUM`, `AVG`, `MIN`, `MAX`).
+  - `filter_having_demo.sql`: Post-aggregation group-level filtering using `HAVING COUNT(event_id) >= 2 AND SUM(payment_amount) >= 30.00`, isolating high-value, multi-transaction subscribers.
+  - `ranking_order_limit.sql`: Top-N viewer ranking by total watch duration and completed sessions using descending multi-column `ORDER BY` and `LIMIT 5`.
+- **Educational Workflow & Comparison Engine (`scripts/sql_filtering_aggregation.py`)**:
+  - `demonstrate_where_vs_having()`: Programmatically isolates and audits the filtering pipeline (raw records $\rightarrow$ `WHERE` row filter $\rightarrow$ `GROUP BY` bucket formation $\rightarrow$ `HAVING` group filter), outputting drop-off metrics.
+  - `execute_sql_file()`: Loads and executes `.sql` scripts against SQLAlchemy engines into Pandas DataFrames.
+- **Automated Unit Test Suite (`scripts/test_sql_filtering_aggregation.py`)**: 6 unit tests validating WHERE filtering logic, multi-column group statistics, HAVING assertions, row vs group drop-off accounting, and monotonic Top-N ordering.
+
+### Files Created & Modified
+- `queries/filter_where_demo.sql`: Pre-aggregation WHERE clause query.
+- `queries/group_by_aggregation.sql`: Multi-column GROUP BY aggregation query.
+- `queries/filter_having_demo.sql`: Post-aggregation HAVING clause query.
+- `queries/ranking_order_limit.sql`: ORDER BY and LIMIT ranking query.
+- `scripts/sql_filtering_aggregation.py`: Core workflow runner and comparison engine.
+- `scripts/test_sql_filtering_aggregation.py`: Unit test suite.
+- `README.md`: Module documentation.
+
+### Database & Tables Involved
+- **Database**: SQLite (`data/sub_stat.db`) / in-memory SQLite engine
+- **Tables**: `subscription_events`, `viewers`, `viewer_activity`
+
+### Technologies & SQL Concepts Used
+- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, unittest.
+- **Concepts**: Row-level filtering (`WHERE`), multi-column aggregation (`GROUP BY`), aggregate filtering (`HAVING`), aggregate functions (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`), monotonic sorting (`ORDER BY DESC`), result truncation (`LIMIT`).
+
+### How to Run & Test
+
+```bash
+# Run the SQL filtering and aggregation workflow:
+python scripts/sql_filtering_aggregation.py
+
+# Run the automated unit test suite:
+python -m unittest scripts/test_sql_filtering_aggregation.py
+```
+
+### Validation & Test Results
+- **Unit Tests:** 6/6 tests passing (`OK`) in ~0.16s.
+- **Live Pipeline Metrics:**
+  - **Raw Records:** 13 subscription events.
+  - **WHERE Filter (payment_status='Completed' & amount >= $10.00):** 8 rows passed (5 rows filtered before aggregation).
+  - **GROUP BY:** Formed 10 distinct viewer groups.
+  - **HAVING Filter (events $\ge 2$ & sum $\ge \$30.00$):** 1 viewer group retained (`V101`: 2 events, $39.98 spent; 9 groups filtered after aggregation).
+  - **Top-N Ranking (Top 5 Viewers):** Rank #1 `V101` (163.5 mins), Rank #2 `V102` (100.0 mins), Rank #3 `V106` (97.0 mins), Rank #4 `V103` (94.0 mins), Rank #5 `V105` (88.0 mins).
+
 
