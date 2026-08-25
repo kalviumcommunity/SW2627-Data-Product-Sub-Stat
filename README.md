@@ -227,58 +227,61 @@ python -m unittest scripts/test_date_time_transformation.py
 
 ---
 
-## 7. SQL Module 2 — SQL Business Metrics Query Design
+## 7. SQL Module 1 — SQL Environment & Database Integration
 
 ### Objective
-Design and implement reusable, documented SQL query files for core subscription and engagement business metrics, and build a modular Python execution workflow returning structured Pandas DataFrames. Ensure unambiguous and uniform metric definitions across SQL queries and application layers.
+Set up a reproducible, modular, and self-contained database integration workflow using SQLite, SQLAlchemy, and Pandas. Automatically load raw and cleaned datasets into relational tables, introspect schema definitions using SQLAlchemy Inspector, execute parameterized SQL queries to Pandas DataFrames, and ensure database connection credentials remain strictly decoupled from source code.
 
-### What Was Implemented
-- **Modular SQL Metric Library (`queries/`)**:
-  - `monthly_active_viewers.sql`: Computes Monthly Active Viewers (MAV), unique viewer counts, session volume, and average watch duration per calendar month (`strftime('%Y-%m')`).
-  - `revenue_by_plan_tier.sql`: Calculates total completed revenue, distinct subscriber count, transaction counts, and Average Revenue Per User (ARPU = Total Revenue / Paying Subscribers) per plan tier.
-  - `payment_conversion_rate.sql`: Quantifies payment attempt success rate percentage and realized revenue per tier using `CASE WHEN` conditional aggregation.
-  - `monthly_revenue_trend.sql`: Aggregates chronological Monthly Recurring Revenue (MRR) trends, transaction counts, and average payment ticket size.
-  - `content_completion_rate.sql`: Measures content completion rate percentages and average viewing durations across genres.
-- **Python Execution Runner (`scripts/business_metrics.py`)**:
-  - `load_sql_query()`: Reads query files dynamically from disk with utf-8 encoding.
-  - `execute_metric_query()`: Executes individual parameterized or non-parameterized SQL files against SQLAlchemy engine and returns clean Pandas DataFrames.
-  - `run_all_metrics()`: Discovers and executes all `.sql` metric definitions in `queries/`.
-- **Automated Unit Test Suite (`scripts/test_business_metrics.py`)**: 7 unit tests verifying SQL parsing, isolated database execution, mathematical consistency, and metric integrity.
+### Implementation Summary
+- **Database Engine Lifecycle (`create_db_engine`)**: Configurable SQLAlchemy engine instantiation supporting local SQLite file storage (`sqlite:///data/sub_stat.db`), in-memory testing instances (`sqlite:///:memory:`), and external relational databases via environment variables (`DATABASE_URL`).
+- **Automated Data Ingestion & Table Initialization (`initialize_database`, `load_csv_to_table`)**: Populates relational tables (`viewers`, `subscription_events`, `viewer_activity`, `content_catalog`) from project CSV files using Pandas `to_sql()` with idempotency support.
+- **Schema Introspection & Validation (`inspect_database_schema`, `verify_table_exists`)**: Utilizes `sqlalchemy.inspect` to introspect table names, column data types, nullability, primary key constraints, and dynamic row counts.
+- **SQL-to-DataFrame Query Pipeline (`query_to_dataframe`)**: Securely executes standard and parameterized SQL statements via SQLAlchemy `text()` constructs into Pandas DataFrames.
+- **Environment Decoupling**: `.env.example` template provided to keep credentials out of code.
+- **Automated Test Suite (`scripts/test_database_integration.py`)**: 7 unit tests validating engine creation, table verification, schema inspection, DataFrame queries, parameterized security, and project dataset loading.
 
 ### Files Created & Modified
-- `queries/monthly_active_viewers.sql`: Monthly active viewer count and session metrics.
-- `queries/revenue_by_plan_tier.sql`: Plan-level revenue aggregation and ARPU.
-- `queries/payment_conversion_rate.sql`: Transaction conversion and success rate.
-- `queries/monthly_revenue_trend.sql`: Time-series monthly revenue trend.
-- `queries/content_completion_rate.sql`: Genre-level content completion percentage.
-- `scripts/business_metrics.py`: Modular Python execution workflow and reporting CLI.
-- `scripts/test_business_metrics.py`: Unit test suite.
-- `README.md`: Module documentation.
+- `requirements.txt`: Added `sqlalchemy>=2.0.0` dependency.
+- `.env.example`: Environment template for database connection strings.
+- `scripts/database_integration.py`: Core database integration workflow, engine factory, table loader, schema inspector, and query runner.
+- `scripts/test_database_integration.py`: Comprehensive unit test suite.
+- `README.md`: Module documentation, usage instructions, and validation summary.
 
 ### Database & Tables Involved
-- **Database**: SQLite (`data/sub_stat.db`) / in-memory SQLite engine
-- **Tables**: `viewer_activity`, `viewers`, `subscription_events`, `content_catalog`
+- **Database**: SQLite (`data/sub_stat.db`)
+- **Tables Initialized**:
+  - `viewers` (11 rows, 5 columns: `viewer_id`, `signup_date`, `plan_tier`, `country`, `device_type`)
+  - `subscription_events` (13 rows, 6 columns: `event_id`, `viewer_id`, `event_date`, `payment_amount`, `payment_status`, `auto_renew`)
+  - `viewer_activity` (16 rows, 6 columns: `viewer_id`, `content_id`, `session_timestamp`, `subscription_date`, `watch_duration_mins`, `completion_status`)
+  - `content_catalog` (5 rows, 4 columns: `content_id`, `title`, `total_duration_mins`, `genre`)
 
 ### Technologies & SQL Concepts Used
-- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, unittest.
-- **Concepts**: Reusable `.sql` file modularity, date formatting with `strftime('%Y-%m')`, conditional aggregation (`CASE WHEN ... THEN 1 ELSE 0 END`), multi-table relational joins (`INNER JOIN`, `LEFT JOIN`), `COALESCE` null-fallback handling, `ROUND` floating point formatting, `COUNT(DISTINCT)`.
+- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, python-dotenv, unittest.
+- **Concepts**: Relational schema design, SQL DDL/DML, parameterized query execution (`:param`), schema introspection (`sqlalchemy.inspect`), data serialization (`to_sql`, `read_sql_query`).
 
-### How to Run & Test
+### Setup & Execution Instructions
 
 ```bash
-# Execute all business metrics queries and view formatted tabular summaries:
-python scripts/business_metrics.py
+# 1. Install dependencies (including SQLAlchemy):
+pip install -r requirements.txt
 
-# Run the automated unit test suite:
-python -m unittest scripts/test_business_metrics.py
+# 2. Run the database integration and verification workflow:
+python scripts/database_integration.py
+
+# 3. Run the automated unit tests:
+python -m unittest scripts/test_database_integration.py
 ```
 
-### Validation & Test Results
-- **Unit Tests:** 7/7 tests passing (`OK`) in ~0.15s.
-- **Live Output Summary:**
-  - `monthly_active_viewers`: 6 MAV in 2025-01 (10 sessions, 32.25 avg mins), 4 MAV in 2025-02 (4 sessions, 51.25 avg mins), 2 MAV in 2025-03 (2 sessions, 36.25 avg mins).
-  - `revenue_by_plan_tier`: Premium generated $99.95 (ARPU $24.99, 4 users), Standard generated $29.98 (ARPU $14.99, 2 users), Basic generated $29.97 (ARPU $9.99, 3 users).
-  - `payment_conversion_rate`: Premium 100% success ($99.95), Basic 100% success ($29.97), Standard 66.67% success ($29.98).
-  - `monthly_revenue_trend`: 7 consecutive monthly revenue periods (Jan-Jul 2025).
+### Expected Output & Test Results
+- **Unit Tests:** 7/7 tests passing (`OK`) in ~0.28s.
+- **Workflow Run Output:**
+  - Initialized 4 relational tables.
+  - Inspected schema and verified row counts (`viewers`: 11, `subscription_events`: 13, `viewer_activity`: 16, `content_catalog`: 5).
+  - Executed aggregate query and top-paying parameterized query into Pandas DataFrames.
+
+### Design Decisions & Assumptions
+- **SQLite Selection**: SQLite was chosen as the default self-contained engine to enable 100% reproducible execution out of the box without external database server dependencies.
+- **Security & Decoupling**: Connection parameters default to the local database but automatically respect `DATABASE_URL` from the environment if PostgreSQL or MySQL is configured.
+- **Idempotency**: `to_sql(..., if_exists='replace')` allows the database initialization script to be re-run safely at any time.
 
 
