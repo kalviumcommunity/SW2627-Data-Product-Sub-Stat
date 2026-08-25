@@ -225,4 +225,63 @@ python -m unittest scripts/test_date_time_transformation.py
 - **Aggregated Output:** Weekly and monthly summaries aggregating total watch duration and session frequencies.
 - **Unit Tests:** 6/6 tests passing (`OK`).
 
+---
+
+## 7. SQL Module 1 — SQL Environment & Database Integration
+
+### Objective
+Set up a reproducible, modular, and self-contained database integration workflow using SQLite, SQLAlchemy, and Pandas. Automatically load raw and cleaned datasets into relational tables, introspect schema definitions using SQLAlchemy Inspector, execute parameterized SQL queries to Pandas DataFrames, and ensure database connection credentials remain strictly decoupled from source code.
+
+### Implementation Summary
+- **Database Engine Lifecycle (`create_db_engine`)**: Configurable SQLAlchemy engine instantiation supporting local SQLite file storage (`sqlite:///data/sub_stat.db`), in-memory testing instances (`sqlite:///:memory:`), and external relational databases via environment variables (`DATABASE_URL`).
+- **Automated Data Ingestion & Table Initialization (`initialize_database`, `load_csv_to_table`)**: Populates relational tables (`viewers`, `subscription_events`, `viewer_activity`, `content_catalog`) from project CSV files using Pandas `to_sql()` with idempotency support.
+- **Schema Introspection & Validation (`inspect_database_schema`, `verify_table_exists`)**: Utilizes `sqlalchemy.inspect` to introspect table names, column data types, nullability, primary key constraints, and dynamic row counts.
+- **SQL-to-DataFrame Query Pipeline (`query_to_dataframe`)**: Securely executes standard and parameterized SQL statements via SQLAlchemy `text()` constructs into Pandas DataFrames.
+- **Environment Decoupling**: `.env.example` template provided to keep credentials out of code.
+- **Automated Test Suite (`scripts/test_database_integration.py`)**: 7 unit tests validating engine creation, table verification, schema inspection, DataFrame queries, parameterized security, and project dataset loading.
+
+### Files Created & Modified
+- `requirements.txt`: Added `sqlalchemy>=2.0.0` dependency.
+- `.env.example`: Environment template for database connection strings.
+- `scripts/database_integration.py`: Core database integration workflow, engine factory, table loader, schema inspector, and query runner.
+- `scripts/test_database_integration.py`: Comprehensive unit test suite.
+- `README.md`: Module documentation, usage instructions, and validation summary.
+
+### Database & Tables Involved
+- **Database**: SQLite (`data/sub_stat.db`)
+- **Tables Initialized**:
+  - `viewers` (11 rows, 5 columns: `viewer_id`, `signup_date`, `plan_tier`, `country`, `device_type`)
+  - `subscription_events` (13 rows, 6 columns: `event_id`, `viewer_id`, `event_date`, `payment_amount`, `payment_status`, `auto_renew`)
+  - `viewer_activity` (16 rows, 6 columns: `viewer_id`, `content_id`, `session_timestamp`, `subscription_date`, `watch_duration_mins`, `completion_status`)
+  - `content_catalog` (5 rows, 4 columns: `content_id`, `title`, `total_duration_mins`, `genre`)
+
+### Technologies & SQL Concepts Used
+- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, python-dotenv, unittest.
+- **Concepts**: Relational schema design, SQL DDL/DML, parameterized query execution (`:param`), schema introspection (`sqlalchemy.inspect`), data serialization (`to_sql`, `read_sql_query`).
+
+### Setup & Execution Instructions
+
+```bash
+# 1. Install dependencies (including SQLAlchemy):
+pip install -r requirements.txt
+
+# 2. Run the database integration and verification workflow:
+python scripts/database_integration.py
+
+# 3. Run the automated unit tests:
+python -m unittest scripts/test_database_integration.py
+```
+
+### Expected Output & Test Results
+- **Unit Tests:** 7/7 tests passing (`OK`) in ~0.28s.
+- **Workflow Run Output:**
+  - Initialized 4 relational tables.
+  - Inspected schema and verified row counts (`viewers`: 11, `subscription_events`: 13, `viewer_activity`: 16, `content_catalog`: 5).
+  - Executed aggregate query and top-paying parameterized query into Pandas DataFrames.
+
+### Design Decisions & Assumptions
+- **SQLite Selection**: SQLite was chosen as the default self-contained engine to enable 100% reproducible execution out of the box without external database server dependencies.
+- **Security & Decoupling**: Connection parameters default to the local database but automatically respect `DATABASE_URL` from the environment if PostgreSQL or MySQL is configured.
+- **Idempotency**: `to_sql(..., if_exists='replace')` allows the database initialization script to be re-run safely at any time.
+
 
