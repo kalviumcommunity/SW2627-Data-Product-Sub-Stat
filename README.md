@@ -178,52 +178,51 @@ python -m unittest scripts/test_deduplication.py
 
 ---
 
-## 6. Module 4 — Feature Engineering & Derived Business Columns
+## 6. Module 1 — Date & Time Transformation Pipeline
 
 ### Objective
-Derive actionable behavioral features and business metrics from raw activity data: construct zero-safe ratio features (`transactions_per_month`, `avg_spend_per_transaction`, `completion_rate`, `watch_hours_per_active_day`), discretize attributes into domain (`pd.cut`) and quantile (`pd.qcut`) tiers, compute multi-factor composite RFM subscriber scores, validate resulting statistical distributions, and catalog business feature definitions.
+Parse timestamp and date strings into pandas datetime objects, extract structured calendar and cyclical features (day of week, numeric day of week, hour, ISO week number, month, quarter, year, weekend indicators), compute elapsed time metrics (days since event, tenure duration) using datetime arithmetic, and aggregate time-series observations via resampling.
 
 ### What Was Implemented
-- **Safe-Division Ratio Engine (`safe_divide`, `create_ratio_features`)**:
-  - Eliminates zero-division errors and infinite values using `np.where` and array clipping.
-  - Derives `transactions_per_month`, `avg_spend_per_transaction`, `completion_rate`, and `watch_hours_per_active_day`.
-- **Domain & Quantile Binning (`create_binned_features`)**:
-  - `spend_tier`: Domain-defined monetary brackets using `pd.cut` (`Low`, `Medium`, `High`, `VIP`).
-  - `engagement_quantile`: Quantile-based cohort discretization using `pd.qcut` (`Q1_Low` to `Q4_Power`).
-- **Composite RFM Scoring & Lifecycle Segmentation (`calculate_rfm_composite_scores`)**:
-  - Derives 1–5 ranked scores for Recency ($R$), Frequency ($F$), and Monetary ($M$).
-  - Computes weighted composite RFM score: $Index = (0.20 \cdot R + 0.30 \cdot F + 0.50 \cdot M) \times 20$ (20–100 scale).
-  - Assigns actionable lifecycle segments: `Champion`, `Loyal Subscriber`, `Potential Loyalist`, `At-Risk`, `Hibernating`.
-- **Feature Distribution Validation (`validate_feature_distributions`)**: Computes statistical moments (mean, std, min, max, median, skewness) and audits for null/infinite values.
-- **Automated Unit Test Suite (`scripts/test_feature_engineering.py`)**: 6 unit tests validating division safety, ratio calculations, binning accuracy, RFM index bounds, and distribution checks.
+- **Datetime Parsing Engine (`parse_datetime_column`)**: Robust parsing of timestamp and calendar date strings into `datetime64[ns]` with configurable error handling (`coerce`, `raise`) and optional UTC standardisation.
+- **Temporal Feature Extraction (`extract_temporal_features`)**: Generates rich calendar attributes from datetimes:
+  - `day_of_week` (e.g. `'Wednesday'`, `'Saturday'`)
+  - `day_of_week_num` (numeric index: `0` for Monday through `6` for Sunday)
+  - `hour` (0 to 23 integer hour)
+  - `is_weekend` (binary flag: `1` for Saturday/Sunday, `0` otherwise)
+  - `iso_week` (ISO-8601 calendar week number `1`–`53`)
+  - `month` (`1`–`12`) & `month_name` (`'January'`–`'December'`)
+  - `quarter` (`1`–`4`) & `year`
+- **Datetime Arithmetic & Recency (`calculate_days_since_event`, `calculate_duration_between_events`)**: Computes exact elapsed days between user events and an anchor reference date, as well as elapsed tenure durations between start and activity dates.
+- **Time-Series Resampling & Aggregation (`resample_time_series`)**: Re-indexes DataFrame on datetime index to produce weekly (`'W'`), monthly (`'ME'`), and quarterly (`'QE'`) multi-metric aggregations (sum, mean, count).
+- **Automated Unit Test Suite (`scripts/test_date_time_transformation.py`)**: 6 comprehensive unit tests covering parsing, feature extraction, arithmetic calculations, resampling, and end-to-end pipeline execution.
 
 ### Files Created & Modified
-- `scripts/feature_engineering.py`: Core feature engineering pipeline and metadata catalog.
-- `scripts/test_feature_engineering.py`: Unit test suite.
-- `data/raw/viewer_engagement_features.csv`: Intake dataset with engagement and purchase history.
-- `data/processed/feature_engineered_data.csv`: Output dataset enriched with engineered features.
-- `output/feature_engineering_report.json`: Feature catalog, moment statistics, and segment distributions.
-- `README.md`: Module documentation.
+- `scripts/date_time_transformation.py`: Core date/time parsing, feature extraction, arithmetic, and resampling pipeline.
+- `scripts/test_date_time_transformation.py`: Unit test suite.
+- `data/raw/viewer_activity_sample.csv`: Sample activity dataset with timestamp strings and subscription dates.
+- `data/processed/datetime_transformed_data.csv`: Transformed output dataset with 11 extracted temporal columns.
+- `output/datetime_transformation_report.json`: Structured transformation and aggregation summary report.
+- `README.md`: Module documentation and instructions.
 
 ### Technologies & Functions Used
-- **Technologies**: Python 3.10+, Pandas, NumPy, Unittest, JSON, Logging.
-- **Key Functions**: `np.where()`, `pd.cut()`, `pd.qcut()`, `Series.rank()`, `Series.skew()`, `DataFrame.quantile()`.
+- **Technologies**: Python 3.10+, Pandas, Unittest, JSON, Logging.
+- **Key Functions**: `pd.to_datetime()`, `.dt.day_name()`, `.dt.dayofweek`, `.dt.hour`, `.dt.isocalendar().week`, `.dt.month`, `.dt.quarter`, `.dt.total_seconds()`, `.resample()`, `.agg()`.
 
 ### How to Run & Test
 
 ```bash
-# Run the Feature Engineering Pipeline:
-python scripts/feature_engineering.py
+# Run the end-to-end Date & Time Transformation Pipeline:
+python scripts/date_time_transformation.py
 
 # Run the automated unit tests:
-python -m unittest scripts/test_feature_engineering.py
+python -m unittest scripts/test_date_time_transformation.py
 ```
 
 ### Example & Result Summary
-- **Input Dimensions:** 12 subscriber records $\times$ 9 raw columns.
-- **Engineered Dimensions:** 12 records $\times$ 17 enriched columns (8 new features added).
-- **Distribution Integrity:** 0 nulls, 0 infinities across all derived numerical features.
-- **Segment Breakdown:** Champions (25.0%), Loyal Subscribers (33.3%), Potential Loyalists (16.7%), At-Risk / Hibernating (25.0%).
-- **Automated Tests:** 6/6 unit tests passing (`OK`).
+- **Input Records:** 16 viewer activity sessions with raw string timestamps.
+- **Extracted Columns (11 new features):** `session_day_of_week`, `session_day_of_week_num`, `session_hour`, `session_is_weekend`, `session_iso_week`, `session_month`, `session_month_name`, `session_quarter`, `session_year`, `tenure_days_at_session`, `days_since_session`.
+- **Aggregated Output:** Weekly and monthly summaries aggregating total watch duration and session frequencies.
+- **Unit Tests:** 6/6 tests passing (`OK`).
 
 
