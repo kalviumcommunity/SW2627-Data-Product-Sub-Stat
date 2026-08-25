@@ -178,52 +178,51 @@ python -m unittest scripts/test_deduplication.py
 
 ---
 
-## 6. Module 3 — Multi-Source Merging & Join Validation
+## 6. Module 1 — Date & Time Transformation Pipeline
 
 ### Objective
-Perform audited multi-source dataset merges across distinct relational entities (e.g. viewer profiles and subscription events), assess merge cardinality (`one_to_one`, `one_to_many`, `many_to_one`, `many_to_many`), audit pre- and post-merge row counts, isolate unmatched keys on both sides, and document defensible business rationale for the selected join strategy.
+Parse timestamp and date strings into pandas datetime objects, extract structured calendar and cyclical features (day of week, numeric day of week, hour, ISO week number, month, quarter, year, weekend indicators), compute elapsed time metrics (days since event, tenure duration) using datetime arithmetic, and aggregate time-series observations via resampling.
 
 ### What Was Implemented
-- **Join Key Schema & Nullity Validation**: Asserts merge key existence and measures nullity on left and right datasets before executing merges.
-- **Cardinality Assessment Engine (`assess_cardinality`)**: Inspects key uniqueness across both DataFrames to categorize relationship structure (`one_to_one`, `one_to_many`, `many_to_one`, `many_to_many`).
-- **Indicator-Based Merge & Key Isolation (`perform_validated_merge`)**:
-  - Leverages pandas `_merge` indicator to classify records into `both`, `left_only`, and `right_only`.
-  - Automatically isolates and exports unmatched left records (e.g., viewers with no subscription activity) and unmatched right records (e.g., orphan transactions without master user profiles).
-  - Calculates match rates and verifies row count integrity between source and target datasets.
-- **Business Rationale Documentation**: Explicitly links the chosen join type (`left`, `inner`, `right`, `outer`) with data governance and business objectives.
-- **Automated Unit Test Suite (`scripts/test_join_validation.py`)**: 5 unit tests verifying cardinality detection, left join unmatched isolation, inner join filtering, missing key handling, and end-to-end pipeline execution.
+- **Datetime Parsing Engine (`parse_datetime_column`)**: Robust parsing of timestamp and calendar date strings into `datetime64[ns]` with configurable error handling (`coerce`, `raise`) and optional UTC standardisation.
+- **Temporal Feature Extraction (`extract_temporal_features`)**: Generates rich calendar attributes from datetimes:
+  - `day_of_week` (e.g. `'Wednesday'`, `'Saturday'`)
+  - `day_of_week_num` (numeric index: `0` for Monday through `6` for Sunday)
+  - `hour` (0 to 23 integer hour)
+  - `is_weekend` (binary flag: `1` for Saturday/Sunday, `0` otherwise)
+  - `iso_week` (ISO-8601 calendar week number `1`–`53`)
+  - `month` (`1`–`12`) & `month_name` (`'January'`–`'December'`)
+  - `quarter` (`1`–`4`) & `year`
+- **Datetime Arithmetic & Recency (`calculate_days_since_event`, `calculate_duration_between_events`)**: Computes exact elapsed days between user events and an anchor reference date, as well as elapsed tenure durations between start and activity dates.
+- **Time-Series Resampling & Aggregation (`resample_time_series`)**: Re-indexes DataFrame on datetime index to produce weekly (`'W'`), monthly (`'ME'`), and quarterly (`'QE'`) multi-metric aggregations (sum, mean, count).
+- **Automated Unit Test Suite (`scripts/test_date_time_transformation.py`)**: 6 comprehensive unit tests covering parsing, feature extraction, arithmetic calculations, resampling, and end-to-end pipeline execution.
 
 ### Files Created & Modified
-- `scripts/join_validation.py`: Core multi-source merging and join integrity engine.
-- `scripts/test_join_validation.py`: Unit test suite.
-- `data/raw/viewers_master.csv`: Primary viewer master profile dataset.
-- `data/raw/subscription_events.csv`: Secondary transactional subscription event log.
-- `data/processed/merged_dataset.csv`: Clean merged analytical dataset.
-- `output/unmatched_left_records.csv`: Isolated records found only in left dataset.
-- `output/unmatched_right_records.csv`: Isolated orphan records found only in right dataset.
-- `output/join_validation_report.json`: Structured merge audit and cardinality report.
-- `README.md`: Module documentation.
+- `scripts/date_time_transformation.py`: Core date/time parsing, feature extraction, arithmetic, and resampling pipeline.
+- `scripts/test_date_time_transformation.py`: Unit test suite.
+- `data/raw/viewer_activity_sample.csv`: Sample activity dataset with timestamp strings and subscription dates.
+- `data/processed/datetime_transformed_data.csv`: Transformed output dataset with 11 extracted temporal columns.
+- `output/datetime_transformation_report.json`: Structured transformation and aggregation summary report.
+- `README.md`: Module documentation and instructions.
 
 ### Technologies & Functions Used
 - **Technologies**: Python 3.10+, Pandas, Unittest, JSON, Logging.
-- **Key Functions**: `pd.merge()`, `indicator=True`, `Series.is_unique`, `DataFrame.isna()`, `DataFrame.drop_duplicates()`.
+- **Key Functions**: `pd.to_datetime()`, `.dt.day_name()`, `.dt.dayofweek`, `.dt.hour`, `.dt.isocalendar().week`, `.dt.month`, `.dt.quarter`, `.dt.total_seconds()`, `.resample()`, `.agg()`.
 
 ### How to Run & Test
 
 ```bash
-# Run the Multi-Source Merging & Join Validation Pipeline:
-python scripts/join_validation.py
+# Run the end-to-end Date & Time Transformation Pipeline:
+python scripts/date_time_transformation.py
 
 # Run the automated unit tests:
-python -m unittest scripts/test_join_validation.py
+python -m unittest scripts/test_date_time_transformation.py
 ```
 
 ### Example & Result Summary
-- **Source Datasets:** 11 master viewers (left) + 13 subscription events (right).
-- **Cardinality Detected:** `one_to_many`.
-- **Join Result (Left Join):** 12 merged rows produced.
-- **Unmatched Left:** 1 viewer (`V199`) with no payment events isolated to `output/unmatched_left_records.csv`.
-- **Unmatched Right:** 2 orphan transactions (`V998`, `V999`) quarantined to `output/unmatched_right_records.csv`.
-- **Automated Tests:** 5/5 unit tests passing (`OK`).
+- **Input Records:** 16 viewer activity sessions with raw string timestamps.
+- **Extracted Columns (11 new features):** `session_day_of_week`, `session_day_of_week_num`, `session_hour`, `session_is_weekend`, `session_iso_week`, `session_month`, `session_month_name`, `session_quarter`, `session_year`, `tenure_days_at_session`, `days_since_session`.
+- **Aggregated Output:** Weekly and monthly summaries aggregating total watch duration and session frequencies.
+- **Unit Tests:** 6/6 tests passing (`OK`).
 
 
