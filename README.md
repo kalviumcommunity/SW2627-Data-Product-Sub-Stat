@@ -227,60 +227,61 @@ python -m unittest scripts/test_date_time_transformation.py
 
 ---
 
-## 7. SQL Module 5 — SQL-Based Insight Validation
+## 7. SQL Module 1 — SQL Environment & Database Integration
 
 ### Objective
-Build a dual-engine insight validation workflow that calculates essential platform business metrics independently in SQL (via SQLite/SQLAlchemy) and in Python (via Pandas), evaluates numerical alignment across configurable absolute and relative tolerance thresholds, flags discrepancies, investigates root causes (NULL handling, data types, rounding, filtering divergence), and exports structured audit reports.
+Set up a reproducible, modular, and self-contained database integration workflow using SQLite, SQLAlchemy, and Pandas. Automatically load raw and cleaned datasets into relational tables, introspect schema definitions using SQLAlchemy Inspector, execute parameterized SQL queries to Pandas DataFrames, and ensure database connection credentials remain strictly decoupled from source code.
 
-### What Was Implemented
-- **Dual-Engine Metric Execution Framework (`scripts/sql_python_validation.py`)**:
-  - `compute_sql_metrics()`: Executes pure SQL aggregate queries against SQLite tables (`subscription_events`, `viewers`, `viewer_activity`).
-  - `compute_python_metrics()`: Calculates matching metrics using native Pandas transformations and aggregations directly on raw datasets.
-- **Configurable Precision & Tolerance Engine (`SQLPythonValidator`)**:
-  - Computes exact absolute differences ($|\text{SQL} - \text{Python}|$) and relative percentage differences ($|\text{SQL} - \text{Python}| / |\text{SQL}|$).
-  - Configurable `abs_tolerance` (default: $10^{-4}$) and `rel_tolerance` (default: $10^{-4}$) boundary checks with binary `PASS`/`FAIL` outcome statuses.
-- **Root-Cause Discrepancy Diagnostics (`diagnose_discrepancy`)**:
-  - Automatically isolates causes of numerical divergences: unhandled `NaN`/`NULL` records, integer division truncation, floating point rounding beyond decimal precision, and row-level filtering mismatches.
-- **Extensible Architecture (`register_metric`)**: Allows dynamic registration of future custom business metrics with dedicated SQL and Python calculation functions.
-- **Audit Exporting (`output/metric_validation_report.json`)**: Exports structured machine-readable JSON summaries and clean terminal tables.
-- **Automated Unit Test Suite (`scripts/test_sql_python_validation.py`)**: 5 unit tests validating dual-engine agreement, strict vs loose tolerance thresholding, intentional discrepancy detection, custom metric registration, and audit report generation.
+### Implementation Summary
+- **Database Engine Lifecycle (`create_db_engine`)**: Configurable SQLAlchemy engine instantiation supporting local SQLite file storage (`sqlite:///data/sub_stat.db`), in-memory testing instances (`sqlite:///:memory:`), and external relational databases via environment variables (`DATABASE_URL`).
+- **Automated Data Ingestion & Table Initialization (`initialize_database`, `load_csv_to_table`)**: Populates relational tables (`viewers`, `subscription_events`, `viewer_activity`, `content_catalog`) from project CSV files using Pandas `to_sql()` with idempotency support.
+- **Schema Introspection & Validation (`inspect_database_schema`, `verify_table_exists`)**: Utilizes `sqlalchemy.inspect` to introspect table names, column data types, nullability, primary key constraints, and dynamic row counts.
+- **SQL-to-DataFrame Query Pipeline (`query_to_dataframe`)**: Securely executes standard and parameterized SQL statements via SQLAlchemy `text()` constructs into Pandas DataFrames.
+- **Environment Decoupling**: `.env.example` template provided to keep credentials out of code.
+- **Automated Test Suite (`scripts/test_database_integration.py`)**: 7 unit tests validating engine creation, table verification, schema inspection, DataFrame queries, parameterized security, and project dataset loading.
 
 ### Files Created & Modified
-- `queries/validation_metrics.sql`: Multi-metric SQL validation query definitions.
-- `scripts/sql_python_validation.py`: Core cross-engine validator, discrepancy diagnostic engine, and report exporter.
-- `scripts/test_sql_python_validation.py`: Unit test suite.
-- `README.md`: Module documentation.
+- `requirements.txt`: Added `sqlalchemy>=2.0.0` dependency.
+- `.env.example`: Environment template for database connection strings.
+- `scripts/database_integration.py`: Core database integration workflow, engine factory, table loader, schema inspector, and query runner.
+- `scripts/test_database_integration.py`: Comprehensive unit test suite.
+- `README.md`: Module documentation, usage instructions, and validation summary.
 
 ### Database & Tables Involved
-- **Database**: SQLite (`data/sub_stat.db`) / in-memory SQLite engine
-- **Tables**: `subscription_events`, `viewers`, `viewer_activity`
+- **Database**: SQLite (`data/sub_stat.db`)
+- **Tables Initialized**:
+  - `viewers` (11 rows, 5 columns: `viewer_id`, `signup_date`, `plan_tier`, `country`, `device_type`)
+  - `subscription_events` (13 rows, 6 columns: `event_id`, `viewer_id`, `event_date`, `payment_amount`, `payment_status`, `auto_renew`)
+  - `viewer_activity` (16 rows, 6 columns: `viewer_id`, `content_id`, `session_timestamp`, `subscription_date`, `watch_duration_mins`, `completion_status`)
+  - `content_catalog` (5 rows, 4 columns: `content_id`, `title`, `total_duration_mins`, `genre`)
 
 ### Technologies & SQL Concepts Used
-- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, JSON, Dataclasses, unittest.
-- **Concepts**: Dual-engine parity validation, numerical tolerance thresholding, root-cause discrepancy isolation, floating point arithmetic auditing, JSON audit trail serialization.
+- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, python-dotenv, unittest.
+- **Concepts**: Relational schema design, SQL DDL/DML, parameterized query execution (`:param`), schema introspection (`sqlalchemy.inspect`), data serialization (`to_sql`, `read_sql_query`).
 
-### How to Run & Test
+### Setup & Execution Instructions
 
 ```bash
-# Run the SQL-Python metric validation workflow:
-python scripts/sql_python_validation.py
+# 1. Install dependencies (including SQLAlchemy):
+pip install -r requirements.txt
 
-# Run the automated unit test suite:
-python -m unittest scripts/test_sql_python_validation.py
+# 2. Run the database integration and verification workflow:
+python scripts/database_integration.py
+
+# 3. Run the automated unit tests:
+python -m unittest scripts/test_database_integration.py
 ```
 
-### Validation & Test Results
-- **Unit Tests:** 5/5 tests passing (`OK`) in ~0.16s.
-- **Metric Verification Table:**
+### Expected Output & Test Results
+- **Unit Tests:** 7/7 tests passing (`OK`) in ~0.28s.
+- **Workflow Run Output:**
+  - Initialized 4 relational tables.
+  - Inspected schema and verified row counts (`viewers`: 11, `subscription_events`: 13, `viewer_activity`: 16, `content_catalog`: 5).
+  - Executed aggregate query and top-paying parameterized query into Pandas DataFrames.
 
-| Metric Name | SQL Value | Python Value | Absolute Diff | Status | Diagnostic Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `total_completed_revenue` | $174.89 | $174.89 | $0.000000$ | **PASS** | Exact match |
-| `avg_completed_transaction_amount` | $15.8991 | $15.8991 | $0.000000$ | **PASS** | Exact match |
-| `payment_success_rate_pct` | $84.6154\%$ | $84.6154\%$ | $0.000000$ | **PASS** | Exact match |
-| `total_watch_duration_mins` | $600.0$ mins | $600.0$ mins | $0.000000$ | **PASS** | Exact match |
-| `active_viewers_count` | $6.0$ users | $6.0$ users | $0.000000$ | **PASS** | Exact match |
-
-- **Overall Audit Status:** **PASS** ($5/5$ metrics verified). Report exported to `output/metric_validation_report.json`.
+### Design Decisions & Assumptions
+- **SQLite Selection**: SQLite was chosen as the default self-contained engine to enable 100% reproducible execution out of the box without external database server dependencies.
+- **Security & Decoupling**: Connection parameters default to the local database but automatically respect `DATABASE_URL` from the environment if PostgreSQL or MySQL is configured.
+- **Idempotency**: `to_sql(..., if_exists='replace')` allows the database initialization script to be re-run safely at any time.
 
 
