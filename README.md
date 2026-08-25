@@ -225,4 +225,63 @@ python -m unittest scripts/test_date_time_transformation.py
 - **Aggregated Output:** Weekly and monthly summaries aggregating total watch duration and session frequencies.
 - **Unit Tests:** 6/6 tests passing (`OK`).
 
+---
+
+## 7. SQL Module 4 — SQL Joins & Multi-Table Analysis
+
+### Objective
+Implement, audit, and validate relational data joins (`INNER JOIN`, `LEFT JOIN`, and SQLite-compatible `FULL OUTER JOIN` emulation). Track pre-join versus post-join record counts, detect unmatched foreign keys bidirectionally (left-only and right-only), analyze relationship cardinality ($1:1$, $1:N$), distinguish legitimate row multiplication from duplicate defects, and execute 3-way multi-table relational analysis.
+
+### What Was Implemented
+- **Modular SQL Join Queries (`queries/`)**:
+  - `join_inner_viewers_events.sql`: Relational inner join matching viewers with payment events, filtering out zero-event subscribers and orphan billing records.
+  - `join_left_viewers_events.sql`: Relational left join preserving the complete subscriber population and surfacing zero-activity viewers via NULL event attributes.
+  - `join_full_outer_emulation.sql`: Robust SQLite emulation of `FULL OUTER JOIN` using `LEFT JOIN` combined with unmatched right-side rows via `UNION ALL`, categorizing each row into `Matched`, `Master Viewer Only`, or `Orphan Event Only`.
+  - `join_multi_table_engagement.sql`: 3-way relational join linking `viewers` $\rightarrow$ `viewer_activity` $\rightarrow$ `content_catalog` for multi-layered behavioral analysis.
+- **Relational Integrity Audit Engine (`scripts/sql_joins_validation.py`)**:
+  - `audit_relational_join()`: Audits pre-merge counts, distinct key sets, join cardinality, left unmatched keys, right unmatched keys, and post-merge row counts across all join types.
+  - Lineage & Row Multiplication Analysis: Programmatically documents why $1:N$ relationships legitimately expand row counts ($N_{\text{left}} \rightarrow N_{\text{merged}}$).
+- **Automated Unit Test Suite (`scripts/test_sql_joins_validation.py`)**: 6 unit tests verifying cardinality detection, unmatched key isolation, INNER/LEFT/FULL OUTER row count mathematics, and 3-way multi-table data lineage.
+
+### Files Created & Modified
+- `queries/join_inner_viewers_events.sql`: Inner join query.
+- `queries/join_left_viewers_events.sql`: Left join query.
+- `queries/join_full_outer_emulation.sql`: SQLite full outer join emulation query.
+- `queries/join_multi_table_engagement.sql`: 3-way relational multi-table query.
+- `scripts/sql_joins_validation.py`: Relational audit engine and workflow runner.
+- `scripts/test_sql_joins_validation.py`: Unit test suite.
+- `README.md`: Module documentation.
+
+### Database & Tables Involved
+- **Database**: SQLite (`data/sub_stat.db`) / in-memory SQLite engine
+- **Tables**: `viewers`, `subscription_events`, `viewer_activity`, `content_catalog`
+
+### Technologies & SQL Concepts Used
+- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, unittest.
+- **Concepts**: `INNER JOIN`, `LEFT JOIN`, `FULL OUTER JOIN` (emulated via `UNION ALL` and `WHERE IS NULL`), $1:N$ relationship cardinality, row expansion accounting, unmatched key isolation (`NOT IN` subqueries), 3-way relational navigation.
+
+### How to Run & Test
+
+```bash
+# Run the SQL joins and multi-table validation workflow:
+python scripts/sql_joins_validation.py
+
+# Run the automated unit test suite:
+python -m unittest scripts/test_sql_joins_validation.py
+```
+
+### Validation & Test Results
+- **Unit Tests:** 6/6 tests passing (`OK`) in ~0.16s.
+- **Relational Audit Findings:**
+  - **Left Table (`viewers`):** 11 rows (11 unique `viewer_id` keys).
+  - **Right Table (`subscription_events`):** 13 rows (12 unique `viewer_id` keys).
+  - **Cardinality:** $1:N$ (One-to-Many).
+  - **Unmatched Left Keys (Registered Viewers with 0 billing events):** `['V199']` (1 viewer).
+  - **Unmatched Right Keys (Orphan Events with no master record):** `['V998', 'V999']` (2 events).
+  - **Join Counts:**
+    - `INNER JOIN`: 11 rows (matched active subscriber events).
+    - `LEFT JOIN`: 12 rows (11 matched + 1 unmatched `V199` with NULL event details).
+    - `FULL OUTER JOIN`: 14 rows (12 left join + 2 orphan events).
+  - **Row Multiplication Analysis:** Average multiplication factor of $1.0\times$ for master viewers, demonstrating valid $1:N$ relational fan-out rather than duplicate errors.
+
 
