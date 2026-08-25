@@ -225,4 +225,62 @@ python -m unittest scripts/test_date_time_transformation.py
 - **Aggregated Output:** Weekly and monthly summaries aggregating total watch duration and session frequencies.
 - **Unit Tests:** 6/6 tests passing (`OK`).
 
+---
+
+## 7. SQL Module 5 — SQL-Based Insight Validation
+
+### Objective
+Build a dual-engine insight validation workflow that calculates essential platform business metrics independently in SQL (via SQLite/SQLAlchemy) and in Python (via Pandas), evaluates numerical alignment across configurable absolute and relative tolerance thresholds, flags discrepancies, investigates root causes (NULL handling, data types, rounding, filtering divergence), and exports structured audit reports.
+
+### What Was Implemented
+- **Dual-Engine Metric Execution Framework (`scripts/sql_python_validation.py`)**:
+  - `compute_sql_metrics()`: Executes pure SQL aggregate queries against SQLite tables (`subscription_events`, `viewers`, `viewer_activity`).
+  - `compute_python_metrics()`: Calculates matching metrics using native Pandas transformations and aggregations directly on raw datasets.
+- **Configurable Precision & Tolerance Engine (`SQLPythonValidator`)**:
+  - Computes exact absolute differences ($|\text{SQL} - \text{Python}|$) and relative percentage differences ($|\text{SQL} - \text{Python}| / |\text{SQL}|$).
+  - Configurable `abs_tolerance` (default: $10^{-4}$) and `rel_tolerance` (default: $10^{-4}$) boundary checks with binary `PASS`/`FAIL` outcome statuses.
+- **Root-Cause Discrepancy Diagnostics (`diagnose_discrepancy`)**:
+  - Automatically isolates causes of numerical divergences: unhandled `NaN`/`NULL` records, integer division truncation, floating point rounding beyond decimal precision, and row-level filtering mismatches.
+- **Extensible Architecture (`register_metric`)**: Allows dynamic registration of future custom business metrics with dedicated SQL and Python calculation functions.
+- **Audit Exporting (`output/metric_validation_report.json`)**: Exports structured machine-readable JSON summaries and clean terminal tables.
+- **Automated Unit Test Suite (`scripts/test_sql_python_validation.py`)**: 5 unit tests validating dual-engine agreement, strict vs loose tolerance thresholding, intentional discrepancy detection, custom metric registration, and audit report generation.
+
+### Files Created & Modified
+- `queries/validation_metrics.sql`: Multi-metric SQL validation query definitions.
+- `scripts/sql_python_validation.py`: Core cross-engine validator, discrepancy diagnostic engine, and report exporter.
+- `scripts/test_sql_python_validation.py`: Unit test suite.
+- `README.md`: Module documentation.
+
+### Database & Tables Involved
+- **Database**: SQLite (`data/sub_stat.db`) / in-memory SQLite engine
+- **Tables**: `subscription_events`, `viewers`, `viewer_activity`
+
+### Technologies & SQL Concepts Used
+- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, JSON, Dataclasses, unittest.
+- **Concepts**: Dual-engine parity validation, numerical tolerance thresholding, root-cause discrepancy isolation, floating point arithmetic auditing, JSON audit trail serialization.
+
+### How to Run & Test
+
+```bash
+# Run the SQL-Python metric validation workflow:
+python scripts/sql_python_validation.py
+
+# Run the automated unit test suite:
+python -m unittest scripts/test_sql_python_validation.py
+```
+
+### Validation & Test Results
+- **Unit Tests:** 5/5 tests passing (`OK`) in ~0.16s.
+- **Metric Verification Table:**
+
+| Metric Name | SQL Value | Python Value | Absolute Diff | Status | Diagnostic Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `total_completed_revenue` | $174.89 | $174.89 | $0.000000$ | **PASS** | Exact match |
+| `avg_completed_transaction_amount` | $15.8991 | $15.8991 | $0.000000$ | **PASS** | Exact match |
+| `payment_success_rate_pct` | $84.6154\%$ | $84.6154\%$ | $0.000000$ | **PASS** | Exact match |
+| `total_watch_duration_mins` | $600.0$ mins | $600.0$ mins | $0.000000$ | **PASS** | Exact match |
+| `active_viewers_count` | $6.0$ users | $6.0$ users | $0.000000$ | **PASS** | Exact match |
+
+- **Overall Audit Status:** **PASS** ($5/5$ metrics verified). Report exported to `output/metric_validation_report.json`.
+
 
