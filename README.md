@@ -227,61 +227,61 @@ python -m unittest scripts/test_date_time_transformation.py
 
 ---
 
-## 7. SQL Module 4 — SQL Joins & Multi-Table Analysis
+## 7. SQL Module 1 — SQL Environment & Database Integration
 
 ### Objective
-Implement, audit, and validate relational data joins (`INNER JOIN`, `LEFT JOIN`, and SQLite-compatible `FULL OUTER JOIN` emulation). Track pre-join versus post-join record counts, detect unmatched foreign keys bidirectionally (left-only and right-only), analyze relationship cardinality ($1:1$, $1:N$), distinguish legitimate row multiplication from duplicate defects, and execute 3-way multi-table relational analysis.
+Set up a reproducible, modular, and self-contained database integration workflow using SQLite, SQLAlchemy, and Pandas. Automatically load raw and cleaned datasets into relational tables, introspect schema definitions using SQLAlchemy Inspector, execute parameterized SQL queries to Pandas DataFrames, and ensure database connection credentials remain strictly decoupled from source code.
 
-### What Was Implemented
-- **Modular SQL Join Queries (`queries/`)**:
-  - `join_inner_viewers_events.sql`: Relational inner join matching viewers with payment events, filtering out zero-event subscribers and orphan billing records.
-  - `join_left_viewers_events.sql`: Relational left join preserving the complete subscriber population and surfacing zero-activity viewers via NULL event attributes.
-  - `join_full_outer_emulation.sql`: Robust SQLite emulation of `FULL OUTER JOIN` using `LEFT JOIN` combined with unmatched right-side rows via `UNION ALL`, categorizing each row into `Matched`, `Master Viewer Only`, or `Orphan Event Only`.
-  - `join_multi_table_engagement.sql`: 3-way relational join linking `viewers` $\rightarrow$ `viewer_activity` $\rightarrow$ `content_catalog` for multi-layered behavioral analysis.
-- **Relational Integrity Audit Engine (`scripts/sql_joins_validation.py`)**:
-  - `audit_relational_join()`: Audits pre-merge counts, distinct key sets, join cardinality, left unmatched keys, right unmatched keys, and post-merge row counts across all join types.
-  - Lineage & Row Multiplication Analysis: Programmatically documents why $1:N$ relationships legitimately expand row counts ($N_{\text{left}} \rightarrow N_{\text{merged}}$).
-- **Automated Unit Test Suite (`scripts/test_sql_joins_validation.py`)**: 6 unit tests verifying cardinality detection, unmatched key isolation, INNER/LEFT/FULL OUTER row count mathematics, and 3-way multi-table data lineage.
+### Implementation Summary
+- **Database Engine Lifecycle (`create_db_engine`)**: Configurable SQLAlchemy engine instantiation supporting local SQLite file storage (`sqlite:///data/sub_stat.db`), in-memory testing instances (`sqlite:///:memory:`), and external relational databases via environment variables (`DATABASE_URL`).
+- **Automated Data Ingestion & Table Initialization (`initialize_database`, `load_csv_to_table`)**: Populates relational tables (`viewers`, `subscription_events`, `viewer_activity`, `content_catalog`) from project CSV files using Pandas `to_sql()` with idempotency support.
+- **Schema Introspection & Validation (`inspect_database_schema`, `verify_table_exists`)**: Utilizes `sqlalchemy.inspect` to introspect table names, column data types, nullability, primary key constraints, and dynamic row counts.
+- **SQL-to-DataFrame Query Pipeline (`query_to_dataframe`)**: Securely executes standard and parameterized SQL statements via SQLAlchemy `text()` constructs into Pandas DataFrames.
+- **Environment Decoupling**: `.env.example` template provided to keep credentials out of code.
+- **Automated Test Suite (`scripts/test_database_integration.py`)**: 7 unit tests validating engine creation, table verification, schema inspection, DataFrame queries, parameterized security, and project dataset loading.
 
 ### Files Created & Modified
-- `queries/join_inner_viewers_events.sql`: Inner join query.
-- `queries/join_left_viewers_events.sql`: Left join query.
-- `queries/join_full_outer_emulation.sql`: SQLite full outer join emulation query.
-- `queries/join_multi_table_engagement.sql`: 3-way relational multi-table query.
-- `scripts/sql_joins_validation.py`: Relational audit engine and workflow runner.
-- `scripts/test_sql_joins_validation.py`: Unit test suite.
-- `README.md`: Module documentation.
+- `requirements.txt`: Added `sqlalchemy>=2.0.0` dependency.
+- `.env.example`: Environment template for database connection strings.
+- `scripts/database_integration.py`: Core database integration workflow, engine factory, table loader, schema inspector, and query runner.
+- `scripts/test_database_integration.py`: Comprehensive unit test suite.
+- `README.md`: Module documentation, usage instructions, and validation summary.
 
 ### Database & Tables Involved
-- **Database**: SQLite (`data/sub_stat.db`) / in-memory SQLite engine
-- **Tables**: `viewers`, `subscription_events`, `viewer_activity`, `content_catalog`
+- **Database**: SQLite (`data/sub_stat.db`)
+- **Tables Initialized**:
+  - `viewers` (11 rows, 5 columns: `viewer_id`, `signup_date`, `plan_tier`, `country`, `device_type`)
+  - `subscription_events` (13 rows, 6 columns: `event_id`, `viewer_id`, `event_date`, `payment_amount`, `payment_status`, `auto_renew`)
+  - `viewer_activity` (16 rows, 6 columns: `viewer_id`, `content_id`, `session_timestamp`, `subscription_date`, `watch_duration_mins`, `completion_status`)
+  - `content_catalog` (5 rows, 4 columns: `content_id`, `title`, `total_duration_mins`, `genre`)
 
 ### Technologies & SQL Concepts Used
-- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, unittest.
-- **Concepts**: `INNER JOIN`, `LEFT JOIN`, `FULL OUTER JOIN` (emulated via `UNION ALL` and `WHERE IS NULL`), $1:N$ relationship cardinality, row expansion accounting, unmatched key isolation (`NOT IN` subqueries), 3-way relational navigation.
+- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, python-dotenv, unittest.
+- **Concepts**: Relational schema design, SQL DDL/DML, parameterized query execution (`:param`), schema introspection (`sqlalchemy.inspect`), data serialization (`to_sql`, `read_sql_query`).
 
-### How to Run & Test
+### Setup & Execution Instructions
 
 ```bash
-# Run the SQL joins and multi-table validation workflow:
-python scripts/sql_joins_validation.py
+# 1. Install dependencies (including SQLAlchemy):
+pip install -r requirements.txt
 
-# Run the automated unit test suite:
-python -m unittest scripts/test_sql_joins_validation.py
+# 2. Run the database integration and verification workflow:
+python scripts/database_integration.py
+
+# 3. Run the automated unit tests:
+python -m unittest scripts/test_database_integration.py
 ```
 
-### Validation & Test Results
-- **Unit Tests:** 6/6 tests passing (`OK`) in ~0.16s.
-- **Relational Audit Findings:**
-  - **Left Table (`viewers`):** 11 rows (11 unique `viewer_id` keys).
-  - **Right Table (`subscription_events`):** 13 rows (12 unique `viewer_id` keys).
-  - **Cardinality:** $1:N$ (One-to-Many).
-  - **Unmatched Left Keys (Registered Viewers with 0 billing events):** `['V199']` (1 viewer).
-  - **Unmatched Right Keys (Orphan Events with no master record):** `['V998', 'V999']` (2 events).
-  - **Join Counts:**
-    - `INNER JOIN`: 11 rows (matched active subscriber events).
-    - `LEFT JOIN`: 12 rows (11 matched + 1 unmatched `V199` with NULL event details).
-    - `FULL OUTER JOIN`: 14 rows (12 left join + 2 orphan events).
-  - **Row Multiplication Analysis:** Average multiplication factor of $1.0\times$ for master viewers, demonstrating valid $1:N$ relational fan-out rather than duplicate errors.
+### Expected Output & Test Results
+- **Unit Tests:** 7/7 tests passing (`OK`) in ~0.28s.
+- **Workflow Run Output:**
+  - Initialized 4 relational tables.
+  - Inspected schema and verified row counts (`viewers`: 11, `subscription_events`: 13, `viewer_activity`: 16, `content_catalog`: 5).
+  - Executed aggregate query and top-paying parameterized query into Pandas DataFrames.
+
+### Design Decisions & Assumptions
+- **SQLite Selection**: SQLite was chosen as the default self-contained engine to enable 100% reproducible execution out of the box without external database server dependencies.
+- **Security & Decoupling**: Connection parameters default to the local database but automatically respect `DATABASE_URL` from the environment if PostgreSQL or MySQL is configured.
+- **Idempotency**: `to_sql(..., if_exists='replace')` allows the database initialization script to be re-run safely at any time.
 
 
