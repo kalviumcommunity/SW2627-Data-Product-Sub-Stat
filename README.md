@@ -178,51 +178,51 @@ python -m unittest scripts/test_deduplication.py
 
 ---
 
-## 6. Module 2 — Data Consistency & Validation Rules
+## 6. Module 1 — Date & Time Transformation Pipeline
 
 ### Objective
-Implement a multi-category rule validation framework supporting range assertions, mandatory field null checks, regex format validation, relational referential integrity against catalog primary keys, and business rules (e.g. `end_time >= start_time`), isolating non-conforming records and generating structured audit reports.
+Parse timestamp and date strings into pandas datetime objects, extract structured calendar and cyclical features (day of week, numeric day of week, hour, ISO week number, month, quarter, year, weekend indicators), compute elapsed time metrics (days since event, tenure duration) using datetime arithmetic, and aggregate time-series observations via resampling.
 
 ### What Was Implemented
-- **Range Constraint Validator (`check_range`)**: Verifies that numeric attributes (e.g. `watch_duration_mins` between 0 and 600, `user_rating` between 1.0 and 5.0) fall within predefined boundaries.
-- **Required & Null Assertions (`check_required_fields`)**: Identifies missing, NaN, or whitespace-only records in mandatory business keys (`viewer_id`, `content_id`, `start_time`).
-- **Regex & Format Pattern Validation (`check_regex_format`)**: Evaluates string representations against domain regex specifications (e.g. `^V\d{3,}$` for viewer IDs and standard email syntax).
-- **Referential Integrity Enforcement (`check_referential_integrity`)**: Validates foreign key relationships against parent catalogs (`content_catalog.csv`), flagging orphan records.
-- **Domain Business Rules (`check_date_order`)**: Ensures logical session chronology (`end_time >= start_time`).
-- **Validation Engine (`DataValidator`)**:
-  - Executes modular registered rules and generates boolean evaluation matrices.
-  - Slices datasets into clean passing records and failing records enriched with `_failed_rules` and `_failure_reasons`.
-  - Generates comprehensive pass/fail statistics and per-rule breakdown metrics.
-- **Automated Test Suite (`scripts/test_data_validation.py`)**: 7 unit tests testing each rule validator individually and validating end-to-end multi-rule pipeline execution.
+- **Datetime Parsing Engine (`parse_datetime_column`)**: Robust parsing of timestamp and calendar date strings into `datetime64[ns]` with configurable error handling (`coerce`, `raise`) and optional UTC standardisation.
+- **Temporal Feature Extraction (`extract_temporal_features`)**: Generates rich calendar attributes from datetimes:
+  - `day_of_week` (e.g. `'Wednesday'`, `'Saturday'`)
+  - `day_of_week_num` (numeric index: `0` for Monday through `6` for Sunday)
+  - `hour` (0 to 23 integer hour)
+  - `is_weekend` (binary flag: `1` for Saturday/Sunday, `0` otherwise)
+  - `iso_week` (ISO-8601 calendar week number `1`–`53`)
+  - `month` (`1`–`12`) & `month_name` (`'January'`–`'December'`)
+  - `quarter` (`1`–`4`) & `year`
+- **Datetime Arithmetic & Recency (`calculate_days_since_event`, `calculate_duration_between_events`)**: Computes exact elapsed days between user events and an anchor reference date, as well as elapsed tenure durations between start and activity dates.
+- **Time-Series Resampling & Aggregation (`resample_time_series`)**: Re-indexes DataFrame on datetime index to produce weekly (`'W'`), monthly (`'ME'`), and quarterly (`'QE'`) multi-metric aggregations (sum, mean, count).
+- **Automated Unit Test Suite (`scripts/test_date_time_transformation.py`)**: 6 comprehensive unit tests covering parsing, feature extraction, arithmetic calculations, resampling, and end-to-end pipeline execution.
 
 ### Files Created & Modified
-- `scripts/data_validation.py`: Core data validation engine and rule pipeline.
-- `scripts/test_data_validation.py`: Unit test suite.
-- `data/raw/content_catalog.csv`: Master reference catalog for referential integrity.
-- `data/raw/validation_sample.csv`: Sample intake dataset with valid and controlled violation records.
-- `data/processed/clean_validated_records.csv`: Clean subset passing all validation rules.
-- `data/processed/failed_validation_records.csv`: Quarantined records with failure reason metadata.
-- `output/data_validation_report.json`: Structured validation audit report.
-- `README.md`: Module documentation.
+- `scripts/date_time_transformation.py`: Core date/time parsing, feature extraction, arithmetic, and resampling pipeline.
+- `scripts/test_date_time_transformation.py`: Unit test suite.
+- `data/raw/viewer_activity_sample.csv`: Sample activity dataset with timestamp strings and subscription dates.
+- `data/processed/datetime_transformed_data.csv`: Transformed output dataset with 11 extracted temporal columns.
+- `output/datetime_transformation_report.json`: Structured transformation and aggregation summary report.
+- `README.md`: Module documentation and instructions.
 
 ### Technologies & Functions Used
-- **Technologies**: Python 3.10+, Pandas, Regular Expressions (`re`), Unittest, JSON, Logging.
-- **Key Functions**: `re.compile()`, `pd.to_numeric()`, `pd.to_datetime()`, `.isin()`, `.notna()`, `.all(axis=1)`.
+- **Technologies**: Python 3.10+, Pandas, Unittest, JSON, Logging.
+- **Key Functions**: `pd.to_datetime()`, `.dt.day_name()`, `.dt.dayofweek`, `.dt.hour`, `.dt.isocalendar().week`, `.dt.month`, `.dt.quarter`, `.dt.total_seconds()`, `.resample()`, `.agg()`.
 
 ### How to Run & Test
 
 ```bash
-# Run the Data Consistency & Validation Pipeline:
-python scripts/data_validation.py
+# Run the end-to-end Date & Time Transformation Pipeline:
+python scripts/date_time_transformation.py
 
 # Run the automated unit tests:
-python -m unittest scripts/test_data_validation.py
+python -m unittest scripts/test_date_time_transformation.py
 ```
 
 ### Example & Result Summary
-- **Intake Evaluated:** 10 records across 6 active validation rules.
-- **Clean Records:** 3 passed all rules (30.0% pass rate).
-- **Quarantined Records:** 7 failed at least one rule with specific failure explanations attached.
-- **Automated Tests:** 7/7 unit tests passing (`OK`).
+- **Input Records:** 16 viewer activity sessions with raw string timestamps.
+- **Extracted Columns (11 new features):** `session_day_of_week`, `session_day_of_week_num`, `session_hour`, `session_is_weekend`, `session_iso_week`, `session_month`, `session_month_name`, `session_quarter`, `session_year`, `tenure_days_at_session`, `days_since_session`.
+- **Aggregated Output:** Weekly and monthly summaries aggregating total watch duration and session frequencies.
+- **Unit Tests:** 6/6 tests passing (`OK`).
 
 
