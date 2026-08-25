@@ -178,58 +178,51 @@ python -m unittest scripts/test_deduplication.py
 
 ---
 
-## 6. Module 5 — NumPy Vectorised Computation & Performance Benchmarking
+## 6. Module 1 — Date & Time Transformation Pipeline
 
 ### Objective
-Identify iterative Python loop bottlenecks in numerical data processing, implement both baseline loop and high-performance NumPy vectorized equivalents for Min-Max normalization, Z-score standardization, and multi-variable non-linear metric calculations, integrate vectorized arrays into pandas DataFrames, benchmark execution runtimes across dataset scales (1,000 to 100,000 rows), and document architectural performance advantages.
+Parse timestamp and date strings into pandas datetime objects, extract structured calendar and cyclical features (day of week, numeric day of week, hour, ISO week number, month, quarter, year, weekend indicators), compute elapsed time metrics (days since event, tenure duration) using datetime arithmetic, and aggregate time-series observations via resampling.
 
 ### What Was Implemented
-- **Min-Max Normalization (`min_max_normalize_loop` vs. `min_max_normalize_vectorized`)**: Scales features into $[0.0, 1.0]$. NumPy vectorized routine replaces iterative element-by-element loops with compiled array SIMD operations.
-- **Z-Score Standardization (`z_score_standardize_loop` vs. `z_score_standardize_vectorized`)**: Centers data at $\mu = 0.0$ with $\sigma = 1.0$. Vectorized implementation leverages single-pass C statistics.
-- **Multi-Variable Composite Non-Linear Score (`compute_composite_score_loop` vs. `compute_composite_score_vectorized`)**: Implements exponential decay penalties and logarithmic scaling using NumPy universal functions (`np.power`, `np.log1p`, `np.exp`).
-- **DataFrame Integration (`integrate_vectorized_features`)**: Enriches tabular datasets directly with vectorized normalized series and composite engagement indices.
-- **Empirical Benchmarking Engine (`benchmark_operation`, `run_numpy_vectorization_pipeline`)**: Executes multi-trial runtime measurements across multiple scales ($N = 1\text{k}, 10\text{k}, 100\text{k}$), computing speedup multipliers ($T_{\text{loop}} / T_{\text{vectorized}}$).
-- **Architectural Rationale**:
-  - *Memory Layout & Cache Locality*: NumPy utilizes contiguous C-order memory buffers, maximizing CPU L1/L2 cache hit rates and enabling hardware prefetching.
-  - *SIMD Hardware Parallelism*: Universal functions map directly to CPU vector registers (AVX2/AVX-512), processing 4 to 8 floating-point values per clock cycle.
-  - *Interpreter Overhead Elimination*: Bypasses Python's dynamic type inspection, object boxing/unboxing, and bytecode evaluation loop.
-- **Automated Unit Test Suite (`scripts/test_numpy_vectorization.py`)**: 6 unit tests confirming exact numerical equivalence (`np.testing.assert_allclose`), statistical properties ($\mu=0, \sigma=1$), DataFrame integration, and benchmark performance.
+- **Datetime Parsing Engine (`parse_datetime_column`)**: Robust parsing of timestamp and calendar date strings into `datetime64[ns]` with configurable error handling (`coerce`, `raise`) and optional UTC standardisation.
+- **Temporal Feature Extraction (`extract_temporal_features`)**: Generates rich calendar attributes from datetimes:
+  - `day_of_week` (e.g. `'Wednesday'`, `'Saturday'`)
+  - `day_of_week_num` (numeric index: `0` for Monday through `6` for Sunday)
+  - `hour` (0 to 23 integer hour)
+  - `is_weekend` (binary flag: `1` for Saturday/Sunday, `0` otherwise)
+  - `iso_week` (ISO-8601 calendar week number `1`–`53`)
+  - `month` (`1`–`12`) & `month_name` (`'January'`–`'December'`)
+  - `quarter` (`1`–`4`) & `year`
+- **Datetime Arithmetic & Recency (`calculate_days_since_event`, `calculate_duration_between_events`)**: Computes exact elapsed days between user events and an anchor reference date, as well as elapsed tenure durations between start and activity dates.
+- **Time-Series Resampling & Aggregation (`resample_time_series`)**: Re-indexes DataFrame on datetime index to produce weekly (`'W'`), monthly (`'ME'`), and quarterly (`'QE'`) multi-metric aggregations (sum, mean, count).
+- **Automated Unit Test Suite (`scripts/test_date_time_transformation.py`)**: 6 comprehensive unit tests covering parsing, feature extraction, arithmetic calculations, resampling, and end-to-end pipeline execution.
 
 ### Files Created & Modified
-- `scripts/numpy_vectorization.py`: Core baseline loops, vectorized implementations, DataFrame integration, and benchmark suite.
-- `scripts/test_numpy_vectorization.py`: Unit test suite.
-- `data/processed/vectorized_computations_data.csv`: Output dataset enriched with vectorized columns.
-- `output/numpy_vectorization_benchmark.json`: Multi-scale benchmark results and architectural documentation.
-- `README.md`: Module documentation.
+- `scripts/date_time_transformation.py`: Core date/time parsing, feature extraction, arithmetic, and resampling pipeline.
+- `scripts/test_date_time_transformation.py`: Unit test suite.
+- `data/raw/viewer_activity_sample.csv`: Sample activity dataset with timestamp strings and subscription dates.
+- `data/processed/datetime_transformed_data.csv`: Transformed output dataset with 11 extracted temporal columns.
+- `output/datetime_transformation_report.json`: Structured transformation and aggregation summary report.
+- `README.md`: Module documentation and instructions.
 
 ### Technologies & Functions Used
-- **Technologies**: Python 3.10+, NumPy, Pandas, Unittest, JSON, Logging.
-- **Key Functions**: `np.min()`, `np.max()`, `np.mean()`, `np.std()`, `np.power()`, `np.log1p()`, `np.exp()`, `time.perf_counter()`, `np.testing.assert_allclose()`.
+- **Technologies**: Python 3.10+, Pandas, Unittest, JSON, Logging.
+- **Key Functions**: `pd.to_datetime()`, `.dt.day_name()`, `.dt.dayofweek`, `.dt.hour`, `.dt.isocalendar().week`, `.dt.month`, `.dt.quarter`, `.dt.total_seconds()`, `.resample()`, `.agg()`.
 
 ### How to Run & Test
 
 ```bash
-# Run the NumPy Vectorization Pipeline and multi-scale benchmark:
-python scripts/numpy_vectorization.py
+# Run the end-to-end Date & Time Transformation Pipeline:
+python scripts/date_time_transformation.py
 
 # Run the automated unit tests:
-python -m unittest scripts/test_numpy_vectorization.py
+python -m unittest scripts/test_date_time_transformation.py
 ```
 
-### Benchmark Results & Performance Summary
-
-| Dataset Scale (Rows) | Operation | Baseline Loop Time | Vectorized Time | Speedup Factor |
-| :--- | :--- | :--- | :--- | :--- |
-| **1,000** | Min-Max Normalization | ~0.15 ms | ~0.04 ms | **3.7x** |
-| **1,000** | Z-Score Standardization | ~0.26 ms | ~0.06 ms | **3.9x** |
-| **1,000** | Composite Non-Linear | ~0.84 ms | ~0.13 ms | **6.6x** |
-| **10,000** | Min-Max Normalization | ~1.65 ms | ~0.12 ms | **14.3x** |
-| **10,000** | Z-Score Standardization | ~2.72 ms | ~0.17 ms | **16.3x** |
-| **10,000** | Composite Non-Linear | ~8.45 ms | ~1.60 ms | **5.3x** |
-| **100,000** | Min-Max Normalization | ~16.2 ms | ~1.41 ms | **11.5x** |
-| **100,000** | Z-Score Standardization | ~27.3 ms | ~1.74 ms | **15.7x** |
-| **100,000** | Composite Non-Linear | ~85.2 ms | ~12.1 ms | **7.0x** |
-
+### Example & Result Summary
+- **Input Records:** 16 viewer activity sessions with raw string timestamps.
+- **Extracted Columns (11 new features):** `session_day_of_week`, `session_day_of_week_num`, `session_hour`, `session_is_weekend`, `session_iso_week`, `session_month`, `session_month_name`, `session_quarter`, `session_year`, `tenure_days_at_session`, `days_since_session`.
+- **Aggregated Output:** Weekly and monthly summaries aggregating total watch duration and session frequencies.
 - **Unit Tests:** 6/6 tests passing (`OK`).
 
 

@@ -1,0 +1,12 @@
+viewer_id,signup_date,plan_tier,country,device_type
+V101,2024-01-15,Premium,US,SmartTV
+V102,2024-02-10,Standard,UK,Mobile
+V103,2024-03-05,Basic,CA,Desktop
+V104,2024-03-20,Premium,US,SmartTV
+V105,2024-04-01,Standard,DE,Tablet
+V106,2024-04-15,Premium,FR,Mobile
+V107,2024-05-10,Basic,US,Desktop
+V108,2024-06-01,Premium,UK,SmartTV
+V109,2024-06-15,Standard,CA,Mobile
+V110,2024-07-01,Basic,US,Tablet
+V199,2024-07-15,Basic,US,Mobile
