@@ -1,0 +1,5 @@
+customer_id,order_id,amount,date,segment
+1,5001,120.5,2026-01-01,Enterprise
+2,5002,90.0,2026-01-02,SMB
+5,5005,250.0,2026-01-05,Enterprise
+6,5006,45.0,2026-01-06,Startup
