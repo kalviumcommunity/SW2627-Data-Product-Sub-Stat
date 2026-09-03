@@ -1,39 +1,112 @@
-# Viewer Engagement & Retention Analytics Platform
+# Subscription Statistics Analytics Platform
 
-## SW2627 - Data Product - Subscription Statistics
+Interactive Streamlit dashboard and reproducible Python analysis workflows for
+understanding subscription revenue, customer segments, churn, retention, and
+transaction performance. The project includes data intake validation, an
+end-to-end CSV pipeline, KPI calculations, segment analysis, time-series
+analysis, and generated reports in `output/`.
 
-A data analytics platform that identifies viewer engagement patterns associated with subscriber retention and presents actionable insights to support data-driven content acquisition decisions.
+## Dataset
 
----
+The repository contains small CSV fixtures under `data/raw/` so the project can
+be run without external credentials or data downloads:
 
-## 1. Project Overview
+| File | Purpose | Main columns |
+| --- | --- | --- |
+| `sample.csv` | Intake-validation example | `customer_id`, `customer_name`, `transaction_amount`, `transaction_date` |
+| `test.csv` | End-to-end pipeline example | `customer_id`, `order_id`, `amount`, `date`, `segment` |
+| `kpi_transactions_sample.csv` | KPI calculations | `customer_id`, `transaction_date`, `amount`, `customer_type`, `product`, `payment_status`, `acquisition_cost` |
+| `segment_sample.csv` | Segment analysis | `customer_id`, `customer_type`, `product`, `revenue`, `support_tickets`, `churn` |
+| `segment_profile_sample.csv` | Retention strategy analysis | `customer_id`, `customer_type`, `lifetime_value`, `churn`, `support_tickets`, `retention_days` |
+| `daily_revenue_sample.csv` | Trend analysis and dashboard trends | `date`, `revenue`, `orders` |
 
-Subscription-based streaming platforms collect large amounts of viewer engagement data, including:
+The scheduled pipeline expects a CSV with `customer_id`, `order_id`, `amount`,
+`date`, and `segment`. Replace `data/raw/test.csv` with the production input
+when connecting an external ingestion source. The sample data is static; the
+GitHub Actions workflow is scheduled weekly.
 
-- Watch duration
-- Pause frequency
-- Episode completion
-- Episodes watched
-- Viewing frequency
-- Subscription activity
+## Getting Started
 
-However, content acquisition teams often lack a unified analytical system that connects these engagement behaviors with subscriber retention.
+From a fresh checkout, run these four commands:
 
-This project aims to bridge that gap by processing viewer activity data, engineering meaningful engagement metrics, analyzing their relationship with retention, and presenting the findings through an interactive dashboard.
+```bash
+git clone <repository-url>
+cd SW2627-Data-Product-Sub-Stat
+python3 -m venv venv && venv/bin/pip install -r requirements.txt
+venv/bin/streamlit run app.py
+```
 
-### Core Question
+Open the local URL printed by Streamlit (normally
+`http://localhost:8501`). On Windows, use `venv\Scripts\python -m pip install
+-r requirements.txt` and `venv\Scripts\streamlit run app.py`.
 
-> **Which viewer engagement patterns are associated with subscriber retention, and how can these insights help content acquisition teams make better decisions?**
+## Full Usage Guide
 
----
+### Run the dashboard
 
-## 2. Problem Statement
+```bash
+venv/bin/streamlit run app.py
+```
 
-A subscription-based streaming platform captures watch duration, pause frequency, and episode completion data, but acquisition teams still greenlight content without understanding which viewer engagement patterns correlate with retention.
+Use the sidebar to switch between:
 
-The platform may know how many people watched a piece of content, but raw view counts alone do not explain whether the content contributes to sustained subscriber engagement.
+- **Overview**: lifetime value, customers, churn, retention, and segment health.
+- **Trends**: daily revenue, 7-day/30-day rolling averages, and monthly totals.
+- **Data Explorer**: filter customer records and download the filtered CSV.
 
-The project therefore focuses on connecting:
+### Run the end-to-end pipeline
+
+```bash
+venv/bin/python pipeline.py --input data/raw/test.csv --output output
+```
+
+The pipeline ingests the CSV, removes unusable rows, converts `amount` to
+numeric, filters non-positive amounts, aggregates revenue and order counts by
+`segment`, and writes:
+
+- `output/cleaned.csv`
+- `output/aggregated.csv`
+
+Both paths are configurable:
+
+```bash
+venv/bin/python pipeline.py --input path/to/input.csv --output path/to/output
+```
+
+Alternatively, provide a JSON config:
+
+```json
+{"input": "data/raw/test.csv", "output": "output"}
+```
+
+```bash
+venv/bin/python pipeline.py --config pipeline_config.json
+```
+
+### Run analysis scripts
+
+Run these from the repository root:
+
+```bash
+venv/bin/python scripts/validate_intake.py
+venv/bin/python scripts/time_series_analysis.py
+venv/bin/python scripts/segment_analysis.py
+venv/bin/python scripts/segment_strategy_analysis.py
+venv/bin/python kpis/kpi_functions.py
+```
+
+Each script writes its reports or charts to `output/`.
+
+### Validate a processed CSV
+
+```bash
+venv/bin/python validate_data.py data/processed/cleaned_data.csv
+```
+
+The validator checks required columns, numeric `amount`, minimum row count,
+and fully-null columns. It exits with code `1` when a check fails.
+
+## Pipeline Architecture
 
 ```text
 Viewer Activity

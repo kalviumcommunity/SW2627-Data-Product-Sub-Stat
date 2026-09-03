@@ -1,0 +1,30 @@
+name: Weekly Pipeline
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run pipeline
+        run: python pipeline.py --input data/raw/test.csv --output output
+      - name: Commit outputs if changed
+        run: |
+          git config user.name "Bot"
+          git config user.email "bot@example.com"
+          git add output/
+          git commit -m "pipeline: auto refresh" || echo "No changes"
+          git push
