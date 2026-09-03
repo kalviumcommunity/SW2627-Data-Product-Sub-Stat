@@ -1,0 +1,4 @@
+record_id,viewer_id,content_id,watch_duration_mins,start_time,end_time,user_email,user_rating
+1,V101,C101,45.0,2025-01-10 10:00:00,2025-01-10 10:45:00,user101@example.com,4.5
+2,V102,C102,30.0,2025-01-10 11:00:00,2025-01-10 11:30:00,user102@example.com,5.0
+10,V110,C103,28.0,2025-01-10 21:00:00,2025-01-10 21:28:00,user110@example.com,4.0

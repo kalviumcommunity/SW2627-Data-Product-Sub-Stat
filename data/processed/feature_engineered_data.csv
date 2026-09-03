@@ -1,0 +1,13 @@
+viewer_id,tenure_months,total_transactions,total_spend,completed_episodes,total_episodes_started,total_watch_hours,active_days,days_since_last_active,transactions_per_month,avg_spend_per_transaction,completion_rate,watch_hours_per_active_day,spend_tier,engagement_quantile,r_score,f_score,m_score,rfm_composite_score,rfm_segment
+V101,12,24,240.0,45,50,120.5,60,3,2.0,10.0,0.9,2.0083,High,Q3_High,5,4,4,84.0,Champion
+V102,6,12,180.0,30,35,80.0,40,7,2.0,15.0,0.8571,2.0,High,Q2_Moderate,3,3,3,60.0,Loyal Subscriber
+V103,1,0,0.0,0,2,2.0,1,45,0.0,0.0,0.0,2.0,Low,Q1_Low,1,1,1,20.0,Hibernating
+V104,24,48,600.0,120,130,310.0,180,1,2.0,12.5,0.9231,1.7222,VIP,Q4_Power,5,5,5,100.0,Champion
+V105,3,6,75.0,15,20,35.5,18,12,2.0,12.5,0.75,1.9722,Medium,Q2_Moderate,2,2,2,40.0,At-Risk
+V106,18,36,450.0,90,100,240.0,120,5,2.0,12.5,0.9,2.0,VIP,Q4_Power,4,5,5,96.0,Champion
+V107,0,1,15.0,2,5,8.0,3,25,0.0,15.0,0.4,2.6667,Low,Q1_Low,1,1,1,20.0,Hibernating
+V108,8,16,210.0,40,45,110.0,55,9,2.0,13.125,0.8889,2.0,High,Q3_High,3,3,3,60.0,Loyal Subscriber
+V109,15,30,375.0,75,80,195.0,95,4,2.0,12.5,0.9375,2.0526,High,Q3_High,4,4,4,80.0,Champion
+V110,4,8,100.0,20,25,50.0,22,18,2.0,12.5,0.8,2.2727,Medium,Q2_Moderate,2,2,2,40.0,At-Risk
+V111,2,2,25.0,4,8,12.0,5,30,1.0,12.5,0.5,2.4,Low,Q1_Low,1,1,1,20.0,Hibernating
+V112,36,72,950.0,210,220,540.0,260,2,2.0,13.1944,0.9545,2.0769,VIP,Q4_Power,5,5,5,100.0,Champion

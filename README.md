@@ -109,102 +109,252 @@ and fully-null columns. It exits with code `1` when a check fails.
 ## Pipeline Architecture
 
 ```text
-CSV upload / scheduled input
-        |
-        v
-Ingestion: read the source CSV and record row counts
-        |
-        v
-Cleaning: remove missing customer/amount rows, cast amount to numeric,
-          remove invalid and non-positive amounts
-        |
-        v
-Aggregation: group by segment and calculate revenue and order count
-        |
-        v
-Output: write cleaned.csv and aggregated.csv to the selected output directory
-        |
-        v
-Analysis: calculate KPI, segment, correlation, and time-series reports
-        |
-        v
-Dashboard: load prepared CSVs, calculate display metrics, and render charts
-        |
-        v
-Alerts: compare KPI values with configured target ranges and label PASS/ALERT
-        |
-        v
-Reports: save CSV, JSON, TXT, and PNG artifacts for review
+Viewer Activity
+       ↓
+Engagement Metrics
+       ↓
+Viewer Segmentation
+       ↓
+Retention Analysis
+       ↓
+Content Insights
+       ↓
+Acquisition Decisions
 ```
 
-The weekly GitHub Actions workflow in
-`.github/workflows/pipeline.yml` runs the pipeline on Mondays at 06:00 UTC and
-can also be started manually with **Run workflow**.
+---
 
-## Derived Features
+## 3. Project Structure
 
-The following table documents engineered columns created by the pipeline and
-analysis code. Display-only formatted values are included where they are
-written into output tables.
+```text
+SW2627-Data-Product-Sub-Stat/
+├── data/
+│   ├── raw/            # Original, immutable raw datasets
+│   └── processed/      # Cleaned and transformed data ready for analysis
+├── notebooks/          # Jupyter notebooks for exploratory data analysis (EDA)
+├── scripts/            # Modular Python scripts for data processing and analysis
+├── output/             # Generated charts, figures, metrics, and export files
+├── requirements.txt    # Essential Python dependencies
+├── .gitignore          # Files and directories ignored by Git
+└── README.md           # Project documentation and setup guide
+```
 
-| Column | Type | Description | Example |
-| --- | --- | --- | --- |
-| `amount` | float | Input amount coerced to numeric during cleaning | `120.50` |
-| `revenue` | float | Sum of cleaned amounts by segment or period | `370.50` |
-| `orders` | integer | Count of orders by segment or day | `2` |
-| `revenue_ma7` | float | Trailing seven-observation revenue mean | `108.43` |
-| `revenue_ma30` | float | Trailing thirty-observation revenue mean | `112.76` |
-| `revenue_sum` | float | Weekly/monthly revenue total | `3,245.00` |
-| `orders_count` | integer | Number of non-null order observations in a period | `42` |
-| `revenue_mean` | float | Mean revenue for a week/month | `115.89` |
-| `mom_change_pct` | float | Percentage change from the previous month | `4.25` |
-| `churn_rate` | float | Mean churn outcome within a customer segment | `0.20` |
-| `total_revenue` | float | Sum of revenue within a segment | `12,500.00` |
-| `customer_count` | integer | Number of customer records in a segment | `25` |
-| `avg_support_tickets` | float | Mean support tickets per segment | `3.40` |
-| `avg_ltv` | float | Mean lifetime value per segment | `42,500.00` |
-| `avg_tickets` | float | Segment mean support-ticket count in strategy analysis | `3.40` |
-| `avg_retention` | float | Mean retention days per segment | `245.00` |
-| `count` | integer | Segment record count in strategy analysis | `25` |
-| `ltv_rank` | float | Dense rank of segments by average lifetime value | `1.0` |
-| `churn_rank` | float | Dense rank of segments by churn rate | `2.0` |
-| `segment_share_pct` | float | Segment records as a percentage of all records | `33.33` |
-| `avg_ltv_display` | string | Currency-formatted average LTV for reports | `"$42,500"` |
-| `churn_rate_display` | string | Percentage-formatted churn rate for reports | `"20.0%"` |
-| `avg_tickets_display` | string | Formatted average support tickets | `"3.40"` |
-| `avg_retention_display` | string | Formatted retention duration | `"245 days"` |
-| `segment_share_display` | string | Formatted segment share | `"33.3%"` |
-| `revenue_contribution` | float | Segment revenue as a percentage of total segment revenue | `48.75` |
+---
 
-KPI functions also derive scalar/report values: monthly active users (distinct
-customers in the latest 30-day window), revenue per customer, churn rate,
-payment success rate, customer acquisition cost, total revenue, trend direction,
-trend magnitude, and PASS/ALERT KPI status. These are saved in JSON or report
-fields rather than as DataFrame columns.
+## 4. Development Environment Setup
 
-## Known Limitations
+Follow these steps to set up the local development environment on your machine.
 
-- The included datasets are synthetic/sample fixtures, not live production data.
-- The scheduled workflow runs weekly; the dashboard does not provide real-time
-  ingestion.
-- The pipeline accepts CSV input and expects exact column names.
-- The pipeline filters missing or non-positive amounts but does not deduplicate
-  orders or reconcile refunds.
-- Date values are parsed only in the analyses that require dates; invalid dates
-  are removed by those loaders.
-- Churn is assumed to be a binary `0/1` value, and segment churn means the mean
-  of that field.
-- KPI target ranges are static JSON configuration and do not adjust for
-  seasonality.
-- Rolling metrics require enough observations; initial windows are blank.
-- Email delivery and SMTP configuration are not currently implemented by the
-  Streamlit app.
-- GitHub Actions output commits require repository write permission and a
-  workflow token with appropriate access.
+### Prerequisites
 
-## Project Checks
+- Python 3.10+ installed
+- Git installed
 
-There are currently no committed pytest test cases in `tests/`. The practical
-smoke checks are the pipeline command, the analysis script commands above, and
-opening the Streamlit dashboard. CI data validation is defined in
-`.github/workflows/validate.yml`.
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/kalviumcommunity/SW2627-Data-Product-Sub-Stat.git
+cd SW2627-Data-Product-Sub-Stat
+```
+
+### 2. Create a Virtual Environment
+
+Create an isolated Python virtual environment named `venv`:
+
+- **Windows (PowerShell / Command Prompt):**
+  ```powershell
+  python -m venv venv
+  ```
+- **macOS / Linux:**
+  ```bash
+  python3 -m venv venv
+  ```
+
+### 3. Activate the Virtual Environment
+
+- **Windows (PowerShell):**
+  ```powershell
+  .\venv\Scripts\Activate.ps1
+  ```
+  *(If you encounter a PowerShell execution policy restriction, run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` first)*
+
+- **Windows (Command Prompt):**
+  ```cmd
+  venv\Scripts\activate.bat
+  ```
+
+- **macOS / Linux:**
+  ```bash
+  source venv/bin/activate
+  ```
+
+Once activated, your terminal prompt will display `(venv)`.
+
+### 4. Install Dependencies
+
+Upgrade `pip` and install all required project packages:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 5. Verify Setup
+
+Verify that the core libraries import properly:
+
+```bash
+python -c "import pandas, numpy, matplotlib, seaborn, sklearn, streamlit; print('Environment setup successful!')"
+```
+
+To deactivate the virtual environment when you are finished:
+
+```bash
+deactivate
+```
+
+---
+
+## 5. Module 5 — Data Type Enforcement & Standardisation
+
+### Objective
+Implement explicit type enforcement and standardisation routines across raw datasets (String → Datetime with strict formats, Currency/Text → Numeric, Binary/Flags → Boolean, String normalization) to prevent silent data conversion failures.
+
+### What Was Implemented
+- **Explicit Datetime Standardisation (`standardise_datetime`)**: Parses date strings into `datetime64[ns]` using strict, unambiguous strftime patterns (`%Y-%m-%d`), avoiding silent day/month swap anomalies.
+- **Currency & Numeric Cleaning (`standardise_numeric`)**: Strips currency symbols (`$`, `€`, `£`, `₹`), thousands commas (`,`), and non-numeric suffixes (e.g. `hrs`, `USD`), safely casting values to `float` or `int`.
+- **Boolean Standardisation (`standardise_boolean`)**: Maps integer binary flags (`0`, `1`) and text representations (`True`, `False`, `yes`, `no`) to nullable pandas `boolean` types.
+- **String & Categorical Normalization (`standardise_string`)**: Trims whitespace and normalizes text casing (`title`, `lower`, `upper`).
+- **Schema Enforcement Engine (`enforce_dataset_schema`)**: Executes schema validation rules across all columns and generates a conversion audit report with success rates and sample failure logs.
+- **Automated Test Suite (`scripts/test_data_type_standardisation.py`)**: 5 unit tests validating explicit datetime parsing, currency cleanup, boolean mapping, casing normalization, and schema enforcement.
+
+### Files Created & Modified
+- `scripts/data_type_standardisation.py`: Core type standardisation engine and workflow runner.
+- `scripts/test_data_type_standardisation.py`: Comprehensive unit test suite.
+- `data/raw/raw_unstandardised.csv`: Sample raw dataset with unstandardized dates, currencies, and flags.
+- `data/processed/standardised_data.csv`: Cleaned and standardized output dataset.
+- `README.md`: Module documentation.
+
+### How to Run & Use
+
+```bash
+# Run the duplicate detection and deduplication pipeline:
+python scripts/deduplication.py
+
+# Run the automated unit tests:
+python -m unittest scripts/test_deduplication.py
+```
+
+### Validation & Testing Performed
+- **Automated Tests:** All 5 unit tests passed (`OK`), verifying exact and near-duplicate detection, `most_complete` ranking accuracy, and audit log generation.
+- **Pipeline Execution:** Successfully deduplicated `data/raw/raw_with_duplicates.csv` (10 rows -> 6 rows, 4 records removed / 40.0%), exporting `data/processed/deduplicated_data.csv`, `output/removed_duplicates_audit.csv`, and `output/deduplication_report.json`.
+
+---
+
+## 6. Module 1 — Date & Time Transformation Pipeline
+
+### Objective
+Parse timestamp and date strings into pandas datetime objects, extract structured calendar and cyclical features (day of week, numeric day of week, hour, ISO week number, month, quarter, year, weekend indicators), compute elapsed time metrics (days since event, tenure duration) using datetime arithmetic, and aggregate time-series observations via resampling.
+
+### What Was Implemented
+- **Datetime Parsing Engine (`parse_datetime_column`)**: Robust parsing of timestamp and calendar date strings into `datetime64[ns]` with configurable error handling (`coerce`, `raise`) and optional UTC standardisation.
+- **Temporal Feature Extraction (`extract_temporal_features`)**: Generates rich calendar attributes from datetimes:
+  - `day_of_week` (e.g. `'Wednesday'`, `'Saturday'`)
+  - `day_of_week_num` (numeric index: `0` for Monday through `6` for Sunday)
+  - `hour` (0 to 23 integer hour)
+  - `is_weekend` (binary flag: `1` for Saturday/Sunday, `0` otherwise)
+  - `iso_week` (ISO-8601 calendar week number `1`–`53`)
+  - `month` (`1`–`12`) & `month_name` (`'January'`–`'December'`)
+  - `quarter` (`1`–`4`) & `year`
+- **Datetime Arithmetic & Recency (`calculate_days_since_event`, `calculate_duration_between_events`)**: Computes exact elapsed days between user events and an anchor reference date, as well as elapsed tenure durations between start and activity dates.
+- **Time-Series Resampling & Aggregation (`resample_time_series`)**: Re-indexes DataFrame on datetime index to produce weekly (`'W'`), monthly (`'ME'`), and quarterly (`'QE'`) multi-metric aggregations (sum, mean, count).
+- **Automated Unit Test Suite (`scripts/test_date_time_transformation.py`)**: 6 comprehensive unit tests covering parsing, feature extraction, arithmetic calculations, resampling, and end-to-end pipeline execution.
+
+### Files Created & Modified
+- `scripts/date_time_transformation.py`: Core date/time parsing, feature extraction, arithmetic, and resampling pipeline.
+- `scripts/test_date_time_transformation.py`: Unit test suite.
+- `data/raw/viewer_activity_sample.csv`: Sample activity dataset with timestamp strings and subscription dates.
+- `data/processed/datetime_transformed_data.csv`: Transformed output dataset with 11 extracted temporal columns.
+- `output/datetime_transformation_report.json`: Structured transformation and aggregation summary report.
+- `README.md`: Module documentation and instructions.
+
+### Technologies & Functions Used
+- **Technologies**: Python 3.10+, Pandas, Unittest, JSON, Logging.
+- **Key Functions**: `pd.to_datetime()`, `.dt.day_name()`, `.dt.dayofweek`, `.dt.hour`, `.dt.isocalendar().week`, `.dt.month`, `.dt.quarter`, `.dt.total_seconds()`, `.resample()`, `.agg()`.
+
+### How to Run & Test
+
+```bash
+# Run the end-to-end Date & Time Transformation Pipeline:
+python scripts/date_time_transformation.py
+
+# Run the automated unit tests:
+python -m unittest scripts/test_date_time_transformation.py
+```
+
+### Example & Result Summary
+- **Input Records:** 16 viewer activity sessions with raw string timestamps.
+- **Extracted Columns (11 new features):** `session_day_of_week`, `session_day_of_week_num`, `session_hour`, `session_is_weekend`, `session_iso_week`, `session_month`, `session_month_name`, `session_quarter`, `session_year`, `tenure_days_at_session`, `days_since_session`.
+- **Aggregated Output:** Weekly and monthly summaries aggregating total watch duration and session frequencies.
+- **Unit Tests:** 6/6 tests passing (`OK`).
+
+---
+
+## 7. SQL Module 1 — SQL Environment & Database Integration
+
+### Objective
+Set up a reproducible, modular, and self-contained database integration workflow using SQLite, SQLAlchemy, and Pandas. Automatically load raw and cleaned datasets into relational tables, introspect schema definitions using SQLAlchemy Inspector, execute parameterized SQL queries to Pandas DataFrames, and ensure database connection credentials remain strictly decoupled from source code.
+
+### Implementation Summary
+- **Database Engine Lifecycle (`create_db_engine`)**: Configurable SQLAlchemy engine instantiation supporting local SQLite file storage (`sqlite:///data/sub_stat.db`), in-memory testing instances (`sqlite:///:memory:`), and external relational databases via environment variables (`DATABASE_URL`).
+- **Automated Data Ingestion & Table Initialization (`initialize_database`, `load_csv_to_table`)**: Populates relational tables (`viewers`, `subscription_events`, `viewer_activity`, `content_catalog`) from project CSV files using Pandas `to_sql()` with idempotency support.
+- **Schema Introspection & Validation (`inspect_database_schema`, `verify_table_exists`)**: Utilizes `sqlalchemy.inspect` to introspect table names, column data types, nullability, primary key constraints, and dynamic row counts.
+- **SQL-to-DataFrame Query Pipeline (`query_to_dataframe`)**: Securely executes standard and parameterized SQL statements via SQLAlchemy `text()` constructs into Pandas DataFrames.
+- **Environment Decoupling**: `.env.example` template provided to keep credentials out of code.
+- **Automated Test Suite (`scripts/test_database_integration.py`)**: 7 unit tests validating engine creation, table verification, schema inspection, DataFrame queries, parameterized security, and project dataset loading.
+
+### Files Created & Modified
+- `requirements.txt`: Added `sqlalchemy>=2.0.0` dependency.
+- `.env.example`: Environment template for database connection strings.
+- `scripts/database_integration.py`: Core database integration workflow, engine factory, table loader, schema inspector, and query runner.
+- `scripts/test_database_integration.py`: Comprehensive unit test suite.
+- `README.md`: Module documentation, usage instructions, and validation summary.
+
+### Database & Tables Involved
+- **Database**: SQLite (`data/sub_stat.db`)
+- **Tables Initialized**:
+  - `viewers` (11 rows, 5 columns: `viewer_id`, `signup_date`, `plan_tier`, `country`, `device_type`)
+  - `subscription_events` (13 rows, 6 columns: `event_id`, `viewer_id`, `event_date`, `payment_amount`, `payment_status`, `auto_renew`)
+  - `viewer_activity` (16 rows, 6 columns: `viewer_id`, `content_id`, `session_timestamp`, `subscription_date`, `watch_duration_mins`, `completion_status`)
+  - `content_catalog` (5 rows, 4 columns: `content_id`, `title`, `total_duration_mins`, `genre`)
+
+### Technologies & SQL Concepts Used
+- **Technologies**: Python 3.10+, SQLAlchemy 2.0+, Pandas 2.0+, SQLite3, python-dotenv, unittest.
+- **Concepts**: Relational schema design, SQL DDL/DML, parameterized query execution (`:param`), schema introspection (`sqlalchemy.inspect`), data serialization (`to_sql`, `read_sql_query`).
+
+### Setup & Execution Instructions
+
+```bash
+# 1. Install dependencies (including SQLAlchemy):
+pip install -r requirements.txt
+
+# 2. Run the database integration and verification workflow:
+python scripts/database_integration.py
+
+# 3. Run the automated unit tests:
+python -m unittest scripts/test_database_integration.py
+```
+
+### Expected Output & Test Results
+- **Unit Tests:** 7/7 tests passing (`OK`) in ~0.28s.
+- **Workflow Run Output:**
+  - Initialized 4 relational tables.
+  - Inspected schema and verified row counts (`viewers`: 11, `subscription_events`: 13, `viewer_activity`: 16, `content_catalog`: 5).
+  - Executed aggregate query and top-paying parameterized query into Pandas DataFrames.
+
+### Design Decisions & Assumptions
+- **SQLite Selection**: SQLite was chosen as the default self-contained engine to enable 100% reproducible execution out of the box without external database server dependencies.
+- **Security & Decoupling**: Connection parameters default to the local database but automatically respect `DATABASE_URL` from the environment if PostgreSQL or MySQL is configured.
+- **Idempotency**: `to_sql(..., if_exists='replace')` allows the database initialization script to be re-run safely at any time.
+
+
