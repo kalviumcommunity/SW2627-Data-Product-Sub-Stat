@@ -1,0 +1,7 @@
+{
+  "name": "sw2627-data-product-sub-stat",
+  "private": true,
+  "scripts": {
+    "dev": "sh -c 'port=${PORT:-8501}; while lsof -nP -iTCP:$port -sTCP:LISTEN >/dev/null 2>&1; do port=$((port + 1)); done; echo \"Starting Streamlit on port $port\"; exec venv/bin/streamlit run app.py --server.port $port --server.headless true'"
+  }
+}
